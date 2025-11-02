@@ -11,7 +11,7 @@ class TableLayout(QVBoxLayout, Style):
     def __init__(self):
         super().__init__()
         self.table_widget = QTableWidget()
-        self.set_style(self.table_widget)
+        self.set_style(self.table_widget) # TODO <-- in config
 
         self.__config_table_widget()
         self.__init_ui()
@@ -20,15 +20,15 @@ class TableLayout(QVBoxLayout, Style):
         self.addWidget(self.table_widget)
 
     def __config_table_widget(self):
-        self.table_widget.setColumnCount(4)
+        self.table_widget.setColumnCount(4) # TODO: list len
         self.table_widget.setRowCount(0)
         self.table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-        self.table_widget.setHorizontalHeaderLabels(['Tên mặt hàng', 'Số lượng', 'Loại', 'Giá'])
+        self.table_widget.setHorizontalHeaderLabels(['Tên mặt hàng', 'Số lượng', 'Loại', 'Giá']) # TODO: global variable
 
     def add_row_to_table(self, data: dict):
         """ Add new row to table """
         row_position = self.table_widget.rowCount()
-        if len(data) == 4:
+        if len(data) == 4: # TODO: list len
             self.table_widget.insertRow(row_position)
             for column, key in enumerate(data.keys()):
                 item = QTableWidgetItem(str(data[key]))

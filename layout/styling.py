@@ -86,14 +86,14 @@ class Style():
         style = self.__get_style(obj_name)
         obj.setStyleSheet(style)
 
-    def set_style_error_label_visible(self, obj):
+    def set_style_error_label_visible(self, obj): # TODO: gom ham
         """ Set style error label when visible """
         obj.setStyleSheet("""
             color: #dc3545;
             font-size: 13px;
         """)
 
-    def set_style_error_label_invisible(self, obj):
+    def set_style_error_label_invisible(self, obj): # TODO: gom ham
         """ Set style error label when invisible """
         obj.setStyleSheet("""
             color: transparent;

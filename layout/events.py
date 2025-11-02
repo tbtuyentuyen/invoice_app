@@ -11,6 +11,7 @@ class Events():
 
     def on_add_button_clicked(self):
         """ Event press add button"""
+        # TODO: add raw data
         data = self.parent.input_layout.validate_all_data()
         result = self.parent.table_layout.add_row_to_table(data)
         if result is True:

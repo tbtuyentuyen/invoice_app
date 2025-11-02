@@ -58,19 +58,19 @@ class InputLayout(QVBoxLayout, Style):
         self.addStretch()
 
     def __create_input_field(self, title: str, parent: QVBoxLayout):
-        input_field = QHBoxLayout()
-        error_field = QHBoxLayout()
+        input_field = QHBoxLayout() # TODO: layout
+        error_field = QHBoxLayout() # TODO: layout
 
-        label, text_input = self.__create_input_part(input_field, title)
-        error_label = self.__create_error_part(error_field)
+        label, text_input = self.__create_input_part(input_field, title) # TODO: widget
+        error_label = self.__create_error_part(error_field) # TODO: widget
 
         parent.addLayout(input_field)
-        parent.addLayout(error_field)
+        parent.addLayout(error_field) 
         return label, text_input, error_label
 
     def __create_input_part(self, parent: QHBoxLayout, title: str):
-        label = QLabel(title)
-        text_input = QPlainTextEdit()
+        label = QLabel(title) # TODO: widget
+        text_input = QPlainTextEdit() # TODO: widget
 
         text_input.setFixedSize(360, 40)
         label.setFixedSize(90, 40)
@@ -80,17 +80,17 @@ class InputLayout(QVBoxLayout, Style):
         return label, text_input
 
     def __create_error_part(self, parent: QHBoxLayout):
-        error_label = QLabel()
+        error_label = QLabel() # TODO: widget
 
         error_label.setFixedSize(360, 30)
-        error_label.setStyleSheet("color: transparent;")
+        error_label.setStyleSheet("color: transparent;") # TODO: call function
         parent.addStretch(1)
         parent.addWidget(error_label)
 
         return error_label
 
     def __verify_input_logic(self, input_widget: QPlainTextEdit, error_widget: QLabel, pattern: str, error_msg: str):
-        data_status = False
+        data_status = False # TODO: remove
         data = input_widget.toPlainText()
         input_widget.blockSignals(True)
 
@@ -98,8 +98,9 @@ class InputLayout(QVBoxLayout, Style):
             error_widget.setText(ErrorMessage.NONE_INPUT)
             self.set_style_error_label_visible(error_widget)
             self.set_plain_text_edit_error(input_widget)
-
+        # TODO: add else
         elif re.fullmatch(pattern, data):
+            # TODO: comment
             data_status = True
             self.set_style(input_widget)
             if error_widget.isVisible():
@@ -122,7 +123,7 @@ class InputLayout(QVBoxLayout, Style):
     def validate_all_data(self):
         """ Validate all data before adding to table"""
         data_map = {}
-        validation_map = {
+        validation_map = { # TODO: move to __init__
             VerifyType.NAME: {
                 'input_widget': self.name_input, 
                 'error_widget': self.name_error,
