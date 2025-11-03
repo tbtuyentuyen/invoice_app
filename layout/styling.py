@@ -1,6 +1,9 @@
 """ Styling Module """
 
 
+from PyQt5.QtWidgets import QWidget
+
+
 class Style():
     """ Style class """
     def __get_style(self, name):
@@ -86,24 +89,28 @@ class Style():
         style = self.__get_style(obj_name)
         obj.setStyleSheet(style)
 
-    def set_style_error_label_visible(self, obj): # TODO: gom ham
-        """ Set style error label when visible """
-        obj.setStyleSheet("""
-            color: #dc3545;
-            font-size: 13px;
-        """)
-
-    def set_style_error_label_invisible(self, obj): # TODO: gom ham
-        """ Set style error label when invisible """
-        obj.setStyleSheet("""
-            color: transparent;
-            font-size: 13px;
-        """)
+    def set_style_error_widget(self, widget: QWidget, is_visible:bool):
+        """ Set style error widget """
+        if is_visible:
+            widget.setStyleSheet("""
+                color: #dc3545;
+                font-size: 13px;
+            """)
+        else:
+            widget.setStyleSheet("""
+                color: transparent;
+                font-size: 13px;
+            """)
 
     def set_plain_text_edit_error(self, obj):
         """ Set plain text edit to red """
         obj.setStyleSheet("""
             QPlainTextEdit {
+                background-color: #EAEFEF;
+                color: #320A6B;
+                font-family: "Consolas", "Monaco", monospace;
+                font-size: 16px;
                 border: 1px solid #dc3545;
+                padding: 7px;
             }
         """)

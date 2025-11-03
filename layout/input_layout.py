@@ -3,12 +3,12 @@
 
 import re
 import qtawesome as qta
-from dotdict import dotdict
+from pydotdict import DotDict
 
 from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QPlainTextEdit, QLabel, QHBoxLayout
 
 from layout.styling import Style
-from common import VerifyType, RegexPatterns, ErrorMessage
+from common import TableAttribute, RegexPatterns, ErrorMessage
 
 
 class InputLayout(QVBoxLayout, Style):
@@ -20,25 +20,25 @@ class InputLayout(QVBoxLayout, Style):
         self.name_label, self.name_input, self.name_error = self.__create_input_field('Tên:', self.name_layout)
         self.set_style(self.name_label)
         self.set_style(self.name_input)
-        self.set_style_error_label_invisible(self.name_error)
+        self.set_style_error_widget(self.name_error, is_visible=False)
 
         self.quantity_layout = QVBoxLayout()
         self.quantity_label, self.quantity_input, self.quantity_error = self.__create_input_field('Số lượng:', self.quantity_layout)
         self.set_style(self.quantity_label)
         self.set_style(self.quantity_input)
-        self.set_style_error_label_invisible(self.quantity_error)
+        self.set_style_error_widget(self.quantity_error, is_visible=False)
 
         self.type_layout = QVBoxLayout()
         self.type_label, self.type_input, self.type_error = self.__create_input_field('Loại:', self.type_layout)
         self.set_style(self.type_label)
         self.set_style(self.type_input)
-        self.set_style_error_label_invisible(self.type_error)
+        self.set_style_error_widget(self.type_error, is_visible=False)
 
         self.price_layout = QVBoxLayout()
         self.price_label, self.price_input, self.price_error = self.__create_input_field('Giá:', self.price_layout)
         self.set_style(self.price_label)
         self.set_style(self.price_input)
-        self.set_style_error_label_invisible(self.price_error)
+        self.set_style_error_widget(self.price_error, is_visible=False)
 
         add_icon = qta.icon('fa5s.plus-circle', color='white')
         self.button_layout = QHBoxLayout()
@@ -49,6 +49,33 @@ class InputLayout(QVBoxLayout, Style):
         self.button_layout.addWidget(self.add_button)
         self.__init_ui()
 
+        self.validation_dict = DotDict({
+            TableAttribute.NAME: {
+                'input_widget': self.name_input, 
+                'error_widget': self.name_error,
+                'pattern': RegexPatterns.NAME,
+                'error_msg': ErrorMessage.NAME_INPUT,
+            },
+            TableAttribute.QUANTITY: {
+                'input_widget': self.quantity_input, 
+                'error_widget': self.quantity_error,
+                'pattern': RegexPatterns.QUANTITY,
+                'error_msg': ErrorMessage.QUANTITY_INPUT,
+            },
+            TableAttribute.TYPE: {
+                'input_widget': self.type_input, 
+                'error_widget': self.type_error,
+                'pattern': RegexPatterns.TYPE,
+                'error_msg': ErrorMessage.TYPE_INPUT,
+            },
+            TableAttribute.PRICE: {
+                'input_widget': self.price_input, 
+                'error_widget': self.price_error,
+                'pattern': RegexPatterns.PRICE,
+                'error_msg': ErrorMessage.PRICE_INPUT,
+            }
+        })
+
     def __init_ui(self):
         self.addLayout(self.name_layout)
         self.addLayout(self.quantity_layout)
@@ -58,60 +85,61 @@ class InputLayout(QVBoxLayout, Style):
         self.addStretch()
 
     def __create_input_field(self, title: str, parent: QVBoxLayout):
-        input_field = QHBoxLayout() # TODO: layout
-        error_field = QHBoxLayout() # TODO: layout
+        input_layout = QHBoxLayout()
+        title_widget, input_widget = self.__create_input_part(input_layout, title)
 
-        label, text_input = self.__create_input_part(input_field, title) # TODO: widget
-        error_label = self.__create_error_part(error_field) # TODO: widget
+        error_layout = QHBoxLayout()
+        error_widget = self.__create_error_part(error_layout)
 
-        parent.addLayout(input_field)
-        parent.addLayout(error_field) 
-        return label, text_input, error_label
+        parent.addLayout(input_layout)
+        parent.addLayout(error_layout) 
+        return title_widget, input_widget, error_widget
 
     def __create_input_part(self, parent: QHBoxLayout, title: str):
-        label = QLabel(title) # TODO: widget
-        text_input = QPlainTextEdit() # TODO: widget
+        title_widget = QLabel(title)
+        title_widget.setFixedSize(90, 40)
+        input_widget = QPlainTextEdit()
+        input_widget.setFixedSize(360, 40)
 
-        text_input.setFixedSize(360, 40)
-        label.setFixedSize(90, 40)
-        parent.addWidget(label)
-        parent.addWidget(text_input)
-
-        return label, text_input
+        parent.addWidget(title_widget)
+        parent.addWidget(input_widget)
+        return title_widget, input_widget
 
     def __create_error_part(self, parent: QHBoxLayout):
-        error_label = QLabel() # TODO: widget
+        error_widget = QLabel()
+        error_widget.setFixedSize(360, 30)
+        self.set_style_error_widget(error_widget, is_visible=False)
 
-        error_label.setFixedSize(360, 30)
-        error_label.setStyleSheet("color: transparent;") # TODO: call function
         parent.addStretch(1)
-        parent.addWidget(error_label)
+        parent.addWidget(error_widget)
+        return error_widget
 
-        return error_label
-
-    def __verify_input_logic(self, input_widget: QPlainTextEdit, error_widget: QLabel, pattern: str, error_msg: str):
-        data_status = False # TODO: remove
-        data = input_widget.toPlainText()
-        input_widget.blockSignals(True)
+    def __verify_input_logic(self, key: TableAttribute, data: str):
+        status = False
+        input_widget = self.validation_dict[key].input_widget
+        error_widget = self.validation_dict[key].error_widget
+        pattern = self.validation_dict[key].pattern.value
+        error_msg = self.validation_dict[key].error_msg.value
 
         if not data:
-            error_widget.setText(ErrorMessage.NONE_INPUT)
-            self.set_style_error_label_visible(error_widget)
-            self.set_plain_text_edit_error(input_widget)
-        # TODO: add else
-        elif re.fullmatch(pattern, data):
-            # TODO: comment
-            data_status = True
-            self.set_style(input_widget)
-            if error_widget.isVisible():
-                self.set_style_error_label_invisible(error_widget)
-        else:
-            error_widget.setText(error_msg)
-            self.set_style_error_label_visible(error_widget)
+            # data field is empty
+            error_widget.setText(ErrorMessage.NONE_INPUT.value)
+            self.set_style_error_widget(error_widget, is_visible=True)
             self.set_plain_text_edit_error(input_widget)
 
-        input_widget.blockSignals(False)
-        return data_status
+        else:
+            if re.fullmatch(pattern, data):
+                # data is valid
+                self.set_style(input_widget)
+                self.set_style_error_widget(error_widget, is_visible=False)
+                status = True
+
+            else:
+                error_widget.setText(error_msg)
+                self.set_style_error_widget(error_widget, is_visible=True)
+                self.set_plain_text_edit_error(input_widget)
+
+        return status
 
     def clear_all_data_input_field(self):
         """ Clear all data in input field """
@@ -120,43 +148,18 @@ class InputLayout(QVBoxLayout, Style):
         self.type_input.clear()
         self.price_input.clear()
 
-    def validate_all_data(self):
-        """ Validate all data before adding to table"""
-        data_map = {}
-        validation_map = { # TODO: move to __init__
-            VerifyType.NAME: {
-                'input_widget': self.name_input, 
-                'error_widget': self.name_error,
-                'pattern': RegexPatterns.NAME,
-                'error_msg': ErrorMessage.NAME_INPUT,
-            },
-            VerifyType.QUANTITY: {
-                'input_widget': self.quantity_input, 
-                'error_widget': self.quantity_error,
-                'pattern': RegexPatterns.QUANTITY,
-                'error_msg': ErrorMessage.QUANTITY_INPUT,
-            },
-            VerifyType.TYPE: {
-                'input_widget': self.type_input, 
-                'error_widget': self.type_error,
-                'pattern': RegexPatterns.TYPE,
-                'error_msg': ErrorMessage.TYPE_INPUT,
-            },
-            VerifyType.PRICE: {
-                'input_widget': self.price_input, 
-                'error_widget': self.price_error,
-                'pattern': RegexPatterns.PRICE,
-                'error_msg': ErrorMessage.PRICE_INPUT,
-            }
-        }
+    def get_data(self):
+        """ Get all data from input fields """
+        data = {}
+        for key, item in self.validation_dict.items():
+            data[key] = item.input_widget.toPlainText()
+        return data
 
-        validation_dot = dotdict(validation_map)
-        for verify_type, validation_info in validation_dot.items():
-            validate_result = self.__verify_input_logic(
-                                        input_widget=validation_info.input_widget,
-                                        error_widget=validation_info.error_widget,
-                                        pattern=validation_info.pattern,
-                                        error_msg=validation_info.error_msg)
-            if validate_result is True:
-                data_map[verify_type] = validation_info.input_widget.toPlainText()
-        return data_map
+    def validate_all_data(self, data: dict):
+        """ Validate all data before adding to table"""
+        validate_status = True
+        for key, item in data.items():
+            status = self.__verify_input_logic(key=key, data=item)
+            if not status:
+                validate_status = False
+        return validate_status
