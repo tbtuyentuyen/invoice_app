@@ -19,14 +19,13 @@ class CustomTableWidget(QTableWidget):
         if event.button() == QtCore.Qt.RightButton:
             item = self.itemAt(event.pos())
             if item:
-                # print(f"Right-clicked on cell: Row {item.row()}, Column {item.column()}")
                 menu = QMenu(self)
                 delete_action = menu.addAction("Xóa hàng")
                 delete_action.triggered.connect(lambda checked_state: self.parent.delete_data_by_row(checked_state, item.row()))
                 menu.exec_(event.globalPos())
             else:
                 return
-        super().mousePressEvent(event) # Call the base class method
+        super().mousePressEvent(event)
 
 
 class TableLayout(QVBoxLayout, Style):

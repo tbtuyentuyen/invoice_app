@@ -184,14 +184,14 @@ class InputLayout(QVBoxLayout, Style):
             self.add_button.setIcon(add_icon)
             self.add_button.setText("Thêm")
             self.add_button.clicked.disconnect()
-            self.add_button.clicked.connect(self.parent.events.on_add_button_clicked)
+            self.add_button.clicked.connect(self.parent.parent.events.on_add_button_clicked)
 
         elif mode == InputMode.EDIT:
             save_icon = qta.icon("fa5s.edit", color='white')
             self.add_button.setIcon(save_icon)
             self.add_button.setText("Cập nhật")
             self.add_button.clicked.disconnect()
-            self.add_button.clicked.connect(self.parent.events.on_save_button_clicked)
+            self.add_button.clicked.connect(self.parent.parent.events.on_save_button_clicked)
 
         else:
             raise TypeError(f"[ERROR] Invalid input mode, '{mode}'")
