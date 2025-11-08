@@ -8,13 +8,15 @@ from pydotdict import DotDict
 from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QPlainTextEdit, QLabel, QHBoxLayout
 
 from layout.styling import Style
-from common import TableAttribute, RegexPatterns, ErrorMessage
+from common import TableAttribute, RegexPatterns, ErrorMessage, InputMode
 
 
 class InputLayout(QVBoxLayout, Style):
     """ Input layout class """
-    def __init__(self):
+    def __init__(self, parent):
         super().__init__()
+        self.parent = parent
+        self.mode = InputMode.ADD
 
         self.name_layout = QVBoxLayout()
         self.name_label, self.name_input, self.name_error = self.__create_input_field('Tên:', self.name_layout)
@@ -41,12 +43,18 @@ class InputLayout(QVBoxLayout, Style):
         self.set_style_error_widget(self.price_error, is_visible=False)
 
         add_icon = qta.icon('fa5s.plus-circle', color='white')
-        self.button_layout = QHBoxLayout()
         self.add_button = QPushButton(text='Thêm', icon=add_icon)
         self.set_style(self.add_button)
 
+        clear_icon = qta.icon('fa5s.eraser', color='white')
+        self.clear_button = QPushButton(text='Xóa', icon=clear_icon)
+        self.set_style(self.clear_button)
+
+        self.button_layout = QHBoxLayout()
         self.button_layout.addStretch()
         self.button_layout.addWidget(self.add_button)
+        self.button_layout.addWidget(self.clear_button)
+
         self.__init_ui()
 
         self.validation_dict = DotDict({
@@ -163,3 +171,29 @@ class InputLayout(QVBoxLayout, Style):
             if not status:
                 validate_status = False
         return validate_status
+
+    def set_data_to_input_field(self, data: dict) -> None:
+        """ Set data to input field """
+        for key, item in self.validation_dict.items():
+            item.input_widget.setPlainText(data[key])
+
+    def set_input_mode(self, mode: InputMode):
+        """ Set input mode """
+        if mode == InputMode.ADD:
+            add_icon = qta.icon('fa5s.plus-circle', color='white')
+            self.add_button.setIcon(add_icon)
+            self.add_button.setText("Thêm")
+            self.add_button.clicked.disconnect()
+            self.add_button.clicked.connect(self.parent.events.on_add_button_clicked)
+
+        elif mode == InputMode.EDIT:
+            save_icon = qta.icon("fa5s.edit", color='white')
+            self.add_button.setIcon(save_icon)
+            self.add_button.setText("Cập nhật")
+            self.add_button.clicked.disconnect()
+            self.add_button.clicked.connect(self.parent.events.on_save_button_clicked)
+
+        else:
+            raise TypeError(f"[ERROR] Invalid input mode, '{mode}'")
+        
+        self.mode = mode

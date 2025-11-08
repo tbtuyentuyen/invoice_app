@@ -34,7 +34,7 @@ class Style():
                     font-family: "Consolas", "Monaco", monospace;
                 }
             """
-        elif name == 'QTableWidget':
+        elif name == 'CustomTableWidget':
             return """
                 QTableWidget {
                     background-color: #EAEFEF;
@@ -50,7 +50,7 @@ class Style():
                 }
 
                 QTableWidget::item:selected {
-                    background-color: #E6E6E6;
+                    background-color: #D0DDD0;
                     color: #333446;
                 }
 

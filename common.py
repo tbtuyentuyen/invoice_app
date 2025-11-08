@@ -22,10 +22,15 @@ class TableAttribute(Enum): # pylint:disable=R0903
     """ Table Attribute class """
     NAME = 'Tên mặt hàng'
     QUANTITY = 'Số lượng'
-    PRICE = 'Giá'
     TYPE = 'Loại'
+    PRICE = 'Giá'
 
     @classmethod
     def list(cls):
         """ return variable list """
         return list(map(lambda c: c.value, cls))
+
+class InputMode(Enum):
+    """ Input Mode class """
+    ADD = "Add"
+    EDIT = "Edit"

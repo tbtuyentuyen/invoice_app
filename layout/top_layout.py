@@ -15,11 +15,11 @@ class TopLayout(QHBoxLayout):
         self.events = Events(self)
 
         self.table_widget = QWidget()
-        self.table_layout = TableLayout()
+        self.table_layout = TableLayout(self)
         self.table_widget.setLayout(self.table_layout)
 
         self.input_widget = QWidget()
-        self.input_layout = InputLayout()
+        self.input_layout = InputLayout(self)
         self.input_widget.setLayout(self.input_layout)
         self.input_widget.setFixedWidth(500)
 
@@ -32,3 +32,5 @@ class TopLayout(QHBoxLayout):
 
     def __connect_signals(self):
         self.input_layout.add_button.clicked.connect(self.events.on_add_button_clicked)
+        self.input_layout.clear_button.clicked.connect(self.events.on_clear_button_clicked)
+        self.table_layout.table_widget.doubleClicked.connect(self.events.on_table_clicked)
