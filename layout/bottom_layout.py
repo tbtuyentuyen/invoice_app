@@ -14,11 +14,11 @@ class BottomLayout(QHBoxLayout, Style):
         super().__init__()
 
         save_icon = qta.icon('fa5s.file-export', color='white')
-        self.save_button = QPushButton(text='Xuất hóa đơn', icon=save_icon)
-        self.set_style(self.save_button)
+        self.export_button = QPushButton(text='Xuất hóa đơn', icon=save_icon)
+        self.set_style(self.export_button)
 
         self.__init_ui()
 
     def __init_ui(self):
         self.addStretch()
-        self.addWidget(self.save_button)
+        self.addWidget(self.export_button)

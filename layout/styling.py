@@ -64,9 +64,9 @@ class Style():
                 }
 
             """
-        elif name == 'QPlainTextEdit':
+        elif name == 'QLineEdit':
             return """
-                QPlainTextEdit {
+                QLineEdit {
                     background-color: #EAEFEF;
                     color: #320A6B;
                     font-family: "Consolas", "Monaco", monospace;
@@ -74,7 +74,7 @@ class Style():
                     border: 1px solid #5c6370;
                     padding: 7px;
                 }
-                QPlainTextEdit::selection {
+                QLineEdit::selection {
                     background-color: #61afef; /* Selection background */
                     color: #ffffff; /* Selection text color */
                 }

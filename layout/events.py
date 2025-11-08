@@ -1,9 +1,12 @@
 """ Event Module """
 
+import os
+import pandas as pd
+from datetime import datetime
 
 from PyQt5.QtWidgets import QMessageBox
 
-from common import InputMode
+from common import InputMode, TableAttribute
 
 
 class Events():
@@ -35,6 +38,7 @@ class Events():
         if reply == QMessageBox.StandardButton.Yes:
             self.parent.top_layout.input_layout.clear_all_data_input_field()
             if self.parent.top_layout.input_layout.mode == InputMode.EDIT:
+                self.parent.top_layout.table_layout.clean_table_color()
                 self.parent.top_layout.input_layout.set_input_mode(mode=InputMode.ADD)
         else:
             return
@@ -57,3 +61,13 @@ class Events():
         data = self.parent.top_layout.table_layout.get_data_by_row(self.edit_row)
         self.parent.top_layout.input_layout.set_data_to_input_field(data)
         self.parent.top_layout.input_layout.set_input_mode(mode=InputMode.EDIT)
+
+    def on_export_button_clicked(self):
+        """ Event clicked on export button """
+        file_name = f'invoice_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+        export_path = os.path.join(self.parent.config.export_folder, file_name)
+        data = self.parent.top_layout.table_layout.get_table_data()
+
+        df = pd.DataFrame(data, columns=TableAttribute.list())
+        df.to_excel(export_path, sheet_name='Sheet1')
+        print(f"[INFO] Export invoice successfully at '{export_path}'")

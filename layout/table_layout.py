@@ -52,19 +52,6 @@ class TableLayout(QVBoxLayout, Style):
         self.table_widget.setHorizontalHeaderLabels(self.header_list)
         self.table_widget.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
-    def __get_table_data(self):
-        data = []
-        for row in range(self.table_widget.rowCount()):
-            row_data = []
-            for col in range(self.table_widget.columnCount()):
-                item = self.table_widget.item(row, col)
-                if item is not None:
-                    row_data.append(item.text())
-                else:
-                    row_data.append("")
-            data.append(row_data)
-        return data
-
     def visualize_data(func):   # pylint: disable=no-self-argument
         """ Decorator fuction """
         def wrapper(self, *args, **kwargs):
@@ -88,13 +75,27 @@ class TableLayout(QVBoxLayout, Style):
         column = self.table_widget.selectedItems()[0].column()
         return row, column
 
+    def get_table_data(self):
+        """ Get all data from table """
+        data = []
+        for row in range(self.table_widget.rowCount()):
+            row_data = []
+            for col in range(self.table_widget.columnCount()):
+                item = self.table_widget.item(row, col)
+                if item is not None:
+                    row_data.append(item.text())
+                else:
+                    row_data.append("")
+            data.append(row_data)
+        return data
+
     def get_data_by_row(self, row: int):
         """ Get data by row """
         assert row < self.table_widget.rowCount(),\
             f"[ERROR] row must be < {self.table_widget.rowCount()}, got '{row}'"
 
         data_dict = {}
-        table_data = self.__get_table_data()
+        table_data = self.get_table_data()
         for i, key in enumerate(TableAttribute):
             data_dict[key] = table_data[row][i]
 

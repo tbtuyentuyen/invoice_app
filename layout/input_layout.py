@@ -5,7 +5,8 @@ import re
 import qtawesome as qta
 from pydotdict import DotDict
 
-from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QPlainTextEdit, QLabel, QHBoxLayout
+from PyQt5.QtCore import QStringListModel
+from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QLineEdit, QLabel, QHBoxLayout, QCompleter
 
 from layout.styling import Style
 from common import TableAttribute, RegexPatterns, ErrorMessage, InputMode
@@ -18,8 +19,12 @@ class InputLayout(QVBoxLayout, Style):
         self.parent = parent
         self.mode = InputMode.ADD
 
+        self.name_suggestion = []
+        self.type_suggestion = []
+
         self.name_layout = QVBoxLayout()
         self.name_label, self.name_input, self.name_error = self.__create_input_field('Tên:', self.name_layout)
+        self.name_model = self.__create_completer(self.name_input, self.name_suggestion)
         self.set_style(self.name_label)
         self.set_style(self.name_input)
         self.set_style_error_widget(self.name_error, is_visible=False)
@@ -32,6 +37,7 @@ class InputLayout(QVBoxLayout, Style):
 
         self.type_layout = QVBoxLayout()
         self.type_label, self.type_input, self.type_error = self.__create_input_field('Loại:', self.type_layout)
+        self.type_model = self.__create_completer(self.type_input, self.type_suggestion)
         self.set_style(self.type_label)
         self.set_style(self.type_input)
         self.set_style_error_widget(self.type_error, is_visible=False)
@@ -106,7 +112,7 @@ class InputLayout(QVBoxLayout, Style):
     def __create_input_part(self, parent: QHBoxLayout, title: str):
         title_widget = QLabel(title)
         title_widget.setFixedSize(90, 40)
-        input_widget = QPlainTextEdit()
+        input_widget = QLineEdit()
         input_widget.setFixedSize(360, 40)
 
         parent.addWidget(title_widget)
@@ -121,6 +127,14 @@ class InputLayout(QVBoxLayout, Style):
         parent.addStretch(1)
         parent.addWidget(error_widget)
         return error_widget
+
+    def __create_completer(self, input_widget: QLineEdit, suggestions: list) -> QStringListModel:
+        model = QStringListModel(suggestions)
+        completer = QCompleter()
+        completer.setModel(model)
+        completer.setCaseSensitivity(0)
+        input_widget.setCompleter(completer)
+        return model
 
     def __verify_input_logic(self, key: TableAttribute, data: str):
         status = False
@@ -160,7 +174,7 @@ class InputLayout(QVBoxLayout, Style):
         """ Get all data from input fields """
         data = {}
         for key, item in self.validation_dict.items():
-            data[key] = item.input_widget.toPlainText()
+            data[key] = item.input_widget.text()
         return data
 
     def validate_all_data(self, data: dict):
@@ -175,7 +189,7 @@ class InputLayout(QVBoxLayout, Style):
     def set_data_to_input_field(self, data: dict) -> None:
         """ Set data to input field """
         for key, item in self.validation_dict.items():
-            item.input_widget.setPlainText(data[key])
+            item.input_widget.setText(data[key])
 
     def set_input_mode(self, mode: InputMode):
         """ Set input mode """

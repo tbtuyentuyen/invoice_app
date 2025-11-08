@@ -5,10 +5,10 @@ from enum import Enum
 
 class RegexPatterns(Enum): # pylint:disable=R0903
     """ Pattern class for regex """
-    NAME = r"^[a-zA-Z0-9\s]*$"
+    NAME = r"^[a-zA-Z0-9àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệđìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ,\s]*$"
     QUANTITY = r"^[0-9\s]*$"
     PRICE = r"^[0-9\s]*$"
-    TYPE = r"^[a-zA-Z\s]*$"
+    TYPE = r"^[a-zA-Z0-9àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệđìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ,\s]*$"
 
 class ErrorMessage(Enum): # pylint:disable=R0903
     """ Error Message for raise exception """
