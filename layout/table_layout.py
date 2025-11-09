@@ -6,7 +6,7 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QVBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView, QAbstractItemView, QMenu
 
 from layout.styling import Style
-from common import TableAttribute
+from tools.common import TableAttribute
 
 
 class CustomTableWidget(QTableWidget):
@@ -77,29 +77,23 @@ class TableLayout(QVBoxLayout, Style):
 
     def get_table_data(self):
         """ Get all data from table """
-        data = []
+        table_data = []
         for row in range(self.table_widget.rowCount()):
-            row_data = []
-            for col in range(self.table_widget.columnCount()):
+            row_data = {}
+            for col, key in enumerate(TableAttribute):
                 item = self.table_widget.item(row, col)
                 if item is not None:
-                    row_data.append(item.text())
+                    row_data[key] = item.text()
                 else:
-                    row_data.append("")
-            data.append(row_data)
-        return data
+                    row_data[key] = ""
+            table_data.append(row_data)
+        return table_data
 
     def get_data_by_row(self, row: int):
         """ Get data by row """
         assert row < self.table_widget.rowCount(),\
             f"[ERROR] row must be < {self.table_widget.rowCount()}, got '{row}'"
-
-        data_dict = {}
-        table_data = self.get_table_data()
-        for i, key in enumerate(TableAttribute):
-            data_dict[key] = table_data[row][i]
-
-        return data_dict
+        return self.get_table_data()[row]
 
     def highlight_edit_row(self, row, col):
         """ Highlight edit row """

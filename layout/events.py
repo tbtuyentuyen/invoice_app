@@ -1,12 +1,7 @@
 """ Event Module """
 
-import os
-import pandas as pd
-from datetime import datetime
-
 from PyQt5.QtWidgets import QMessageBox
-
-from common import InputMode, TableAttribute
+from tools.invoice_builder import InvoiceBuilder
 
 
 class Events():
@@ -14,6 +9,7 @@ class Events():
     def __init__(self, parent):
         self.parent = parent
         self.edit_row = None
+        self.invoice_builder = InvoiceBuilder()
 
     def on_add_button_clicked(self):
         """ Event press add button """
@@ -64,10 +60,10 @@ class Events():
 
     def on_export_button_clicked(self):
         """ Event clicked on export button """
-        file_name = f'invoice_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
-        export_path = os.path.join(self.parent.config.export_folder, file_name)
         data = self.parent.top_layout.table_layout.get_table_data()
-
-        df = pd.DataFrame(data, columns=TableAttribute.list())
-        df.to_excel(export_path, sheet_name='Sheet1')
-        print(f"[INFO] Export invoice successfully at '{export_path}'")
+        path = self.invoice_builder.build(data)
+        QMessageBox.information(
+            None,
+            "Xuất hóa đơn thành công",
+            f"Hóa đơn được lưu tại:\n'{path}'"
+        )

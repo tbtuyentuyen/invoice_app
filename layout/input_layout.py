@@ -9,7 +9,7 @@ from PyQt5.QtCore import QStringListModel
 from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QLineEdit, QLabel, QHBoxLayout, QCompleter
 
 from layout.styling import Style
-from common import TableAttribute, RegexPatterns, ErrorMessage, InputMode
+from tools.common import TableAttribute, RegexPatterns, ErrorMessage, InputMode
 
 
 class InputLayout(QVBoxLayout, Style):

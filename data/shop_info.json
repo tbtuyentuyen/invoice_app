@@ -1,0 +1,13 @@
+{
+    "shop_title": "EXAMPLE STORE",
+    "shop_specialty": "Chuyên: UNIT1 - UNIT2 - UNIT3\nUNIT4 - UNIT5 - UNIT6 - UNIT7\nUNIT9 - UNIT10",
+    "shop_name": "SHOP NAME",
+    "shop_address": "ĐC: Shop Street, \nShop Ward, Shop City",
+    "shop_phone": "SĐT: Shop Phone 1 - Shop Phone 2",
+    "shop_bank": "STK Bank_name: Shop Bank",
+    "shop_owner": "Shop Owner",
+
+    "invoice_title": "HÓA ĐƠN BÁN LẺ   Số:",
+    "invoice_number": 1,
+    "sign_img": "data/sign.png"
+}

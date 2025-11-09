@@ -4,7 +4,7 @@ import os
 
 from PyQt5.QtWidgets import QVBoxLayout
 
-from utils import load_json
+from tools.utils import load_json
 from layout.events import Events
 from layout.bottom_layout import BottomLayout
 from layout.top_layout import TopLayout
