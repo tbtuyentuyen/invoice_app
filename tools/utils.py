@@ -76,3 +76,7 @@ def add_image_fit_cell(ws, path: str, start_cell: str, end_cell: str = None, fit
     img.anchor = OneCellAnchor(_from=marker, ext=ext)
 
     ws.add_image(img)
+
+def clear_format_money(text: str):
+    """ Clear format money """
+    return text.replace('.', '').replace(',', '').replace('VNĐ', '').replace(' ', '').strip()

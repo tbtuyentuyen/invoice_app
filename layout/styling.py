@@ -64,7 +64,7 @@ class Style():
                 }
 
             """
-        elif name == 'QLineEdit':
+        elif name in ['QLineEdit', 'MoneyLineEdit']:
             return """
                 QLineEdit {
                     background-color: #EAEFEF;
@@ -112,5 +112,27 @@ class Style():
                 font-size: 16px;
                 border: 1px solid #dc3545;
                 padding: 7px;
+            }
+        """)
+
+    def set_style_total_price(self, obj_label, obj_edit):
+        """ Set style error widget """
+        obj_edit.setStyleSheet("""
+            QLineEdit {
+                background-color: #EAEFEF;
+                color: #320A6B;
+                font-family: "Consolas", "Monaco", monospace;
+                font-weight: bold;
+                font-size: 20px;
+                border: 1px solid #5c6370;
+                padding: 7px;
+            }
+        """)
+        obj_label.setStyleSheet("""
+            QLabel {
+                color: black;
+                font-size: 20px;
+                font-weight: bold;
+                font-family: "Consolas", "Monaco", monospace;
             }
         """)

@@ -5,12 +5,36 @@ import re
 import qtawesome as qta
 from pydotdict import DotDict
 
-from PyQt5.QtCore import QStringListModel
+from PyQt5.QtCore import QStringListModel, Qt
 from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QLineEdit, QLabel, QHBoxLayout, QCompleter
 
 from layout.styling import Style
+from tools.utils import clear_format_money
 from tools.common import TableAttribute, RegexPatterns, ErrorMessage, InputMode
 
+
+class MoneyLineEdit(QLineEdit):
+    """ Money LineEdit class"""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.textChanged.connect(self.format_currency)
+        self.setAlignment(Qt.AlignRight)
+        self.prefix = ' VNĐ'
+
+    def format_currency(self):
+        """ Fortmat current """
+        text = clear_format_money(self.text())
+        if not text.isdigit():
+            return
+
+        value = int(text)
+        formatted = f"{value:,}".replace(',', '.') + self.prefix
+
+        self.blockSignals(True)
+        self.setText(formatted)
+        self.blockSignals(False)
+
+        self.setCursorPosition(len(formatted) - len(self.prefix) if len(formatted) > len(self.prefix) else 0)
 
 class InputLayout(QVBoxLayout, Style):
     """ Input layout class """
@@ -43,7 +67,7 @@ class InputLayout(QVBoxLayout, Style):
         self.set_style_error_widget(self.type_error, is_visible=False)
 
         self.price_layout = QVBoxLayout()
-        self.price_label, self.price_input, self.price_error = self.__create_input_field('Giá:', self.price_layout)
+        self.price_label, self.price_input, self.price_error = self.__create_money_field('Giá:', self.price_layout)
         self.set_style(self.price_label)
         self.set_style(self.price_input)
         self.set_style_error_widget(self.price_error, is_visible=False)
@@ -106,8 +130,29 @@ class InputLayout(QVBoxLayout, Style):
         error_widget = self.__create_error_part(error_layout)
 
         parent.addLayout(input_layout)
+        parent.addLayout(error_layout)
+        return title_widget, input_widget, error_widget
+
+    def __create_money_field(self, title: str, parent: QVBoxLayout):
+        input_layout = QHBoxLayout()
+        title_widget, input_widget = self.__create_money_part(input_layout, title)
+
+        error_layout = QHBoxLayout()
+        error_widget = self.__create_error_part(error_layout)
+
+        parent.addLayout(input_layout)
         parent.addLayout(error_layout) 
         return title_widget, input_widget, error_widget
+
+    def __create_money_part(self, parent: QHBoxLayout, title: str):
+        title_widget = QLabel(title)
+        title_widget.setFixedSize(90, 40)
+        input_widget = MoneyLineEdit()
+        input_widget.setFixedSize(360, 40)
+
+        parent.addWidget(title_widget)
+        parent.addWidget(input_widget)
+        return title_widget, input_widget
 
     def __create_input_part(self, parent: QHBoxLayout, title: str):
         title_widget = QLabel(title)
@@ -150,7 +195,7 @@ class InputLayout(QVBoxLayout, Style):
             self.set_plain_text_edit_error(input_widget)
 
         else:
-            if re.fullmatch(pattern, data):
+            if re.fullmatch(pattern, data.lower()):
                 # data is valid
                 self.set_style(input_widget)
                 self.set_style_error_widget(error_widget, is_visible=False)
@@ -174,7 +219,10 @@ class InputLayout(QVBoxLayout, Style):
         """ Get all data from input fields """
         data = {}
         for key, item in self.validation_dict.items():
-            data[key] = item.input_widget.text()
+            value = item.input_widget.text()
+            if key == TableAttribute.PRICE:
+                value = clear_format_money(value)
+            data[key] = value
         return data
 
     def validate_all_data(self, data: dict):
@@ -209,5 +257,5 @@ class InputLayout(QVBoxLayout, Style):
 
         else:
             raise TypeError(f"[ERROR] Invalid input mode, '{mode}'")
-        
+
         self.mode = mode

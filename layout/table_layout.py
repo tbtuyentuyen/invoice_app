@@ -1,9 +1,10 @@
 """ Table Layout Module """
 
 
-from PyQt5 import QtCore
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QVBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView, QAbstractItemView, QMenu
+from PyQt5.QtWidgets import (QVBoxLayout, QHBoxLayout, QTableWidget, QLineEdit,
+                             QTableWidgetItem, QHeaderView, QAbstractItemView, QMenu, QLabel)
 
 from layout.styling import Style
 from tools.common import TableAttribute
@@ -15,17 +16,21 @@ class CustomTableWidget(QTableWidget):
         super().__init__()
         self.parent = parent
 
-    def mousePressEvent(self, event):
-        if event.button() == QtCore.Qt.RightButton:
+    def mousePressEvent(self, event): # pylint: disable=invalid-name
+        """ Mouse Press Event handle """
+        super().mousePressEvent(event)
+        if event.button() == Qt.RightButton:
             item = self.itemAt(event.pos())
             if item:
+                row, col = item.row(), item.column()
+                self.parent.highlight_edit_row(row, col)
                 menu = QMenu(self)
                 delete_action = menu.addAction("Xóa hàng")
-                delete_action.triggered.connect(lambda checked_state: self.parent.delete_data_by_row(checked_state, item.row()))
+                delete_action.triggered.connect(lambda checked_state: self.parent.delete_data_by_row(checked_state, row))
                 menu.exec_(event.globalPos())
+                self.parent.clean_table_color()
             else:
                 return
-        super().mousePressEvent(event)
 
 
 class TableLayout(QVBoxLayout, Style):
@@ -35,21 +40,45 @@ class TableLayout(QVBoxLayout, Style):
         self.parent = parent
         self.table_data = []
 
+        self.col_dict = {
+            TableAttribute.NAME: {'size': 0, 'align': Qt.AlignCenter},
+            TableAttribute.QUANTITY: {'size': 120, 'align': Qt.AlignCenter},
+            TableAttribute.TYPE: {'size': 120, 'align': Qt.AlignCenter},
+            TableAttribute.PRICE: {'size': 180, 'align': Qt.AlignRight | Qt.AlignVCenter},
+            TableAttribute.SUM: {'size': 180, 'align': Qt.AlignRight | Qt.AlignVCenter}
+        }
         self.header_list = TableAttribute.list()
         self.table_widget = CustomTableWidget(self)
+
+        self.total_layout = QHBoxLayout()
+        self.total_label = QLabel("Tổng tiền:")
+        self.total_price = QLineEdit()
+        self.total_layout.addStretch()
+        self.total_layout.addWidget(self.total_label)
+        self.total_layout.addWidget(self.total_price)
+        self.set_style_total_price(self.total_label, self.total_price)
 
         self.__config_table_widget()
         self.__init_ui()
 
     def __init_ui(self):
         self.addWidget(self.table_widget)
+        self.addLayout(self.total_layout)
 
     def __config_table_widget(self):
         self.set_style(self.table_widget)
         self.table_widget.setColumnCount(len(self.header_list))
         self.table_widget.setRowCount(0)
         self.table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+
         self.table_widget.setHorizontalHeaderLabels(self.header_list)
+        for col, item in enumerate(TableAttribute):
+            if size:=self.col_dict[item]['size']:
+                self.table_widget.horizontalHeader().setSectionResizeMode(col, QHeaderView.Fixed)
+                self.table_widget.setColumnWidth(col, size)
+            else:
+                self.table_widget.horizontalHeader().setSectionResizeMode(col, QHeaderView.Stretch)
+
         self.table_widget.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
     def visualize_data(func):   # pylint: disable=no-self-argument
@@ -61,13 +90,23 @@ class TableLayout(QVBoxLayout, Style):
 
     def visualize_table_data(self):
         """ Visualize for table data """
+        total = 0
         self.table_widget.setRowCount(len(self.table_data))
         for row, row_data in enumerate(self.table_data):
             for column, key in enumerate(row_data.keys()):
-                item = QTableWidgetItem(str(row_data[key]))
+                if key in [TableAttribute.PRICE, TableAttribute.QUANTITY, TableAttribute.SUM]:
+                    value = f"{int(row_data[key]):,}".replace(',', '.')
+                else:
+                    value = str(row_data[key])
+                item = QTableWidgetItem(value)
+                item.setTextAlignment(self.col_dict[key]['align'])
                 self.table_widget.setItem(row, column, item)
-                self.table_widget.resizeColumnsToContents()
-                self.table_widget.resizeRowsToContents()
+
+                if key == TableAttribute.SUM:
+                    total += int(row_data[key])
+
+        self.total_price.setText(f"{total:,} VNĐ".replace(',', '.'))
+        self.total_price.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
     def get_current_cell(self):
         """ Get current cell """
@@ -113,7 +152,8 @@ class TableLayout(QVBoxLayout, Style):
 
     @visualize_data
     def add_row_to_table(self, data: dict):
-        """ Add new row to table """
+        """ Add sum column for data and new row to table """
+        data[TableAttribute.SUM] = int(data[TableAttribute.QUANTITY])*int(data[TableAttribute.PRICE])
         self.table_data.append(data)
 
     @visualize_data
@@ -122,6 +162,11 @@ class TableLayout(QVBoxLayout, Style):
         self.table_data[row] = data
 
     @visualize_data
-    def delete_data_by_row(self, checked_state : bool, row: int):
+    def delete_data_by_row(self, checked_state : bool, row: int):  # pylint: disable=unused-argument
         """ Delete data by row """
         self.table_data.pop(row)
+
+    @visualize_data
+    def clean_table(self):
+        """ Clean table data """
+        self.table_data = []

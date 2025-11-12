@@ -24,6 +24,7 @@ class TableAttribute(Enum): # pylint:disable=R0903
     QUANTITY = 'Số lượng'
     TYPE = 'Loại'
     PRICE = 'Giá'
+    SUM = 'Thành tiền'
 
     @classmethod
     def list(cls):

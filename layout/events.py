@@ -2,6 +2,7 @@
 
 from PyQt5.QtWidgets import QMessageBox
 from tools.invoice_builder import InvoiceBuilder
+from tools.common import InputMode
 
 
 class Events():
@@ -67,3 +68,4 @@ class Events():
             "Xuất hóa đơn thành công",
             f"Hóa đơn được lưu tại:\n'{path}'"
         )
+        self.parent.top_layout.table_layout.clean_table()
