@@ -3,34 +3,12 @@
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import (QVBoxLayout, QHBoxLayout, QTableWidget, QLineEdit,
-                             QTableWidgetItem, QHeaderView, QAbstractItemView, QMenu, QLabel)
+from PyQt5.QtWidgets import (QVBoxLayout, QHBoxLayout, QLineEdit,
+                             QTableWidgetItem, QHeaderView, QAbstractItemView, QLabel)
 
 from layout.styling import Style
+from layout.custom_widget import QCustomTableWidget
 from tools.common import TableAttribute
-
-
-class CustomTableWidget(QTableWidget):
-    """ Custom table widget class """
-    def __init__(self, parent):
-        super().__init__()
-        self.parent = parent
-
-    def mousePressEvent(self, event): # pylint: disable=invalid-name
-        """ Mouse Press Event handle """
-        super().mousePressEvent(event)
-        if event.button() == Qt.RightButton:
-            item = self.itemAt(event.pos())
-            if item:
-                row, col = item.row(), item.column()
-                self.parent.highlight_edit_row(row, col)
-                menu = QMenu(self)
-                delete_action = menu.addAction("Xóa hàng")
-                delete_action.triggered.connect(lambda checked_state: self.parent.delete_data_by_row(checked_state, row))
-                menu.exec_(event.globalPos())
-                self.parent.clean_table_color()
-            else:
-                return
 
 
 class TableLayout(QVBoxLayout, Style):
@@ -48,7 +26,7 @@ class TableLayout(QVBoxLayout, Style):
             TableAttribute.SUM: {'size': 180, 'align': Qt.AlignRight | Qt.AlignVCenter}
         }
         self.header_list = TableAttribute.list()
-        self.table_widget = CustomTableWidget(self)
+        self.table_widget = QCustomTableWidget(self)
 
         self.total_layout = QHBoxLayout()
         self.total_label = QLabel("Tổng tiền:")

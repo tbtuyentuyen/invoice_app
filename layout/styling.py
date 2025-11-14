@@ -34,7 +34,7 @@ class Style():
                     font-family: "Consolas", "Monaco", monospace;
                 }
             """
-        elif name == 'CustomTableWidget':
+        elif name == 'QCustomTableWidget':
             return """
                 QTableWidget {
                     background-color: #EAEFEF;
@@ -50,7 +50,7 @@ class Style():
                 }
 
                 QTableWidget::item:selected {
-                    background-color: #D0DDD0;
+                    background-color: #EAEFEF;
                     color: #333446;
                 }
 
@@ -64,7 +64,7 @@ class Style():
                 }
 
             """
-        elif name in ['QLineEdit', 'MoneyLineEdit']:
+        elif name in ['QLineEdit', 'QMoneyLineEdit']:
             return """
                 QLineEdit {
                     background-color: #EAEFEF;
