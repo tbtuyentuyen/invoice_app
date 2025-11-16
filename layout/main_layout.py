@@ -4,10 +4,10 @@ import os
 
 from PyQt5.QtWidgets import QVBoxLayout
 
-from tools.utils import load_json
 from layout.events import Events
 from layout.bottom_layout import BottomLayout
 from layout.top_layout import TopLayout
+from tools.utils import load_json, save_json
 
 
 CONFIG_PATH = os.environ['CONFIG_PATH']
@@ -34,3 +34,7 @@ class MainLayout(QVBoxLayout): # pylint:disable=R0903
         self.top_layout.input_layout.clear_button.clicked.connect(self.events.on_clear_button_clicked)
         self.top_layout.table_layout.table_widget.doubleClicked.connect(self.events.on_table_clicked)
         self.bottom_layout.export_button.clicked.connect(self.events.on_export_button_clicked)
+
+    def save_config(self):
+        """ Save config """
+        save_json(self.config, CONFIG_PATH)

@@ -18,6 +18,11 @@ def load_json(path: str) -> dict:
         data = json.load(f)
     return DotDict(data)
 
+def save_json(data: dict, path: str) -> None:
+    """ Save json file """
+    with open(path, mode='w', encoding='utf-8') as json_file:
+        json.dump(data, json_file, indent=4)
+
 def _get_range_pixel_size(ws, start_cell: str, end_cell: str):
     """Get total pixel width/height for a cell range (handles merged cells)."""
     start_col = ''.join([c for c in start_cell if c.isalpha()])

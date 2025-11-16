@@ -1,8 +1,10 @@
 """ Event Module """
 
-from PyQt5.QtWidgets import QMessageBox
-from tools.invoice_builder import InvoiceBuilder
+from PyQt5.QtWidgets import QMessageBox, QFileDialog
+
+from tools.utils import load_json
 from tools.common import InputMode
+from tools.invoice_builder import InvoiceBuilder
 
 
 class Events():
@@ -69,3 +71,13 @@ class Events():
             f"Hóa đơn được lưu tại:\n'{path}'"
         )
         self.parent.top_layout.table_layout.clean_table()
+
+    def on_set_export_path_clicked(self):
+        """ Event clicked on set export path """
+        folder_path = QFileDialog.getExistingDirectory(None, "Select Folder", self.parent.config.export_folder)
+
+        if folder_path:
+            print(f"Selected folder: {folder_path}")
+            self.parent.config.export_folder = folder_path
+            self.parent.save_config()
+
