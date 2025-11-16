@@ -32,6 +32,7 @@ class MainWindow(QMainWindow): # pylint:disable=R0903
         self.setWindowIcon(app_icon)
         self.setGeometry(0, 0, 1500, 700)
 
+        self.closeEvent = self.main_layout.events.on_close_app_clicked  # pylint: disable=invalid-name
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

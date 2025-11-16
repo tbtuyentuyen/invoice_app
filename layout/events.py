@@ -1,8 +1,10 @@
 """ Event Module """
 
-from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
-from tools.utils import load_json
+import qtawesome as qta
+from PyQt5.QtWidgets import QMessageBox, QFileDialog, QPushButton
+from PyQt5.QtGui import QCloseEvent
+
 from tools.common import InputMode
 from tools.invoice_builder import InvoiceBuilder
 
@@ -81,3 +83,24 @@ class Events():
             self.parent.config.export_folder = folder_path
             self.parent.save_config()
 
+    def on_close_app_clicked(self, event: QCloseEvent):
+        """ Event clicked on close button """
+        button_accept = QPushButton('Có')
+        button_reject = QPushButton('Không')
+        close_box = QMessageBox()
+
+        close_icon = qta.icon('mdi6.close-thick', color='red')
+        question_icon = qta.icon('fa5.question-circle', color='darkblue').pixmap(64, 64)
+        close_box.setIconPixmap(question_icon)
+        close_box.setWindowIcon(close_icon)
+
+        close_box.setWindowTitle("Bạn có muốn đóng ứng dụng?")
+        close_box.setText("Dữ liệu của phiên làm việc hiện tại sẽ bị xóa.\nNhấn 'Có' nếu bạn muốn đóng ứng dụng.")
+        close_box.addButton(button_accept, QMessageBox.YesRole)
+        close_box.addButton(button_reject, QMessageBox.NoRole)
+        close_box.exec_()
+
+        if close_box.clickedButton() == button_accept:
+            event.accept()
+        else:
+            event.ignore()
