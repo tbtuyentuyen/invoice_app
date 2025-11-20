@@ -35,3 +35,10 @@ class InputMode(Enum):
     """ Input Mode class """
     ADD = "Add"
     EDIT = "Edit"
+
+class MongoDBStatus(Enum):
+    """ MongoDB Status class """
+    UNKNOWN = "Chưa xác định"
+    CONNECTING = "Đang kết nối.."
+    CONNECTED = "Đã kết nối"
+    DISCONNECTED = "Đã ngắt kết nối"

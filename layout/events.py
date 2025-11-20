@@ -1,6 +1,8 @@
 """ Event Module """
 
 
+import os
+
 import qtawesome as qta
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QPushButton
 from PyQt5.QtGui import QCloseEvent
@@ -67,6 +69,8 @@ class Events():
         """ Event clicked on export button """
         data = self.parent.top_layout.table_layout.get_table_data()
         path = self.invoice_builder.build(data)
+        name = os.path.basename(path).split('.')[0]
+        self.parent.parent.mongodb_client.add_invoice(name, data)
         QMessageBox.information(
             None,
             "Xuất hóa đơn thành công",

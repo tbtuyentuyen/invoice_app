@@ -14,8 +14,9 @@ CONFIG_PATH = os.environ['CONFIG_PATH']
 
 class MainLayout(QVBoxLayout): # pylint:disable=R0903
     """ Main layout class """
-    def __init__(self):
+    def __init__(self, parent):
         super().__init__()
+        self.parent = parent
         self.config = load_json(CONFIG_PATH)
 
         self.events = Events(self)

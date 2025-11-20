@@ -1,3 +1,5 @@
 {
-    "export_folder": "./"
+    "export_folder": "C:/Users/Tuyen/OneDrive/Documents/test_invoice_app",
+    "backup_folder": "C:/Users/Tuyen/OneDrive/Documents/test_invoice_app",
+    "mongodb_endpoint": "mongodb://localhost:27017"
 }
