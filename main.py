@@ -9,8 +9,8 @@ from PyQt5.QtCore import QThread
 
 from layout.menu_bar import MenuBar
 from layout.main_layout import MainLayout
-from tools.mongodb_client import MongoDBWorker
 from tools.common import MongoDBStatus
+from tools.mongodb_client import MongoDBWorker, MongoDBClient
 
 
 class MainWindow(QMainWindow): # pylint:disable=R0903
@@ -22,7 +22,7 @@ class MainWindow(QMainWindow): # pylint:disable=R0903
         self.__init_ui()
 
         self.mongodb_thread = None
-        self.mongodb_client = None
+        self.mongodb_client = MongoDBClient()
         self.mongodb_worker = None
         self.check_mongodb_connection()
  
@@ -62,7 +62,7 @@ class MainWindow(QMainWindow): # pylint:disable=R0903
         """ Check MongoDB connection """
         self.__change_status_bar(MongoDBStatus.CONNECTING.value)
         self.mongodb_thread = QThread()
-        self.mongodb_worker = MongoDBWorker()
+        self.mongodb_worker = MongoDBWorker(self.mongodb_client)
         self.mongodb_worker.moveToThread(self.mongodb_thread)
         self.mongodb_worker.finished.connect(self.change_mongodb_status)
         self.mongodb_thread.started.connect(self.mongodb_worker.start_connection)

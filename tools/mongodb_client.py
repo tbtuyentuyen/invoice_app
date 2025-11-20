@@ -17,9 +17,9 @@ CONFIG_PATH = os.environ['CONFIG_PATH']
 class MongoDBWorker(QObject):
     finished = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self, mongo_client):
         super().__init__()
-        self.mongodb_client = MongoDBClient()
+        self.mongodb_client = mongo_client
 
     def start_connection(self):
         """ Start connection function """
@@ -35,7 +35,12 @@ class MongoDBClient:
     """ Mongo Database Client """
     def __init__(self):
         self.config = load_json(CONFIG_PATH)
-        self.client = MongoClient(self.config.mongodb_endpoint)
+        self.client = MongoClient(
+            self.config.mongodb_endpoint,
+            timeoutMS=self.config.mongodb_timeout,
+            socketTimeoutMS=self.config.mongodb_timeout,
+            connectTimeoutMS=self.config.mongodb_timeout
+        )
         database = self.client["invoice_app"]
         self.invoice_col = database["invoices"]
         self.offline_mode = True

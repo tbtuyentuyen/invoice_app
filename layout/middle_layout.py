@@ -7,7 +7,7 @@ from layout.table_layout import TableLayout
 from layout.input_layout import InputLayout
 
 
-class TopLayout(QHBoxLayout):
+class MiddleLayout(QHBoxLayout):
     """ Top Layout class """
     def __init__(self, parent):
         super().__init__()
