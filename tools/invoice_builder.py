@@ -33,10 +33,6 @@ THIN = Side(style="thin", color="000000")
 MED  = Side(style="medium", color="000000")
 THICK = Side(style="thick", color="000000")
 DASH = Side(style='dashed', color="000000")
-
-BORDER_THIN = Border(left=THICK, right=THICK, top=THIN, bottom=THIN)
-BORDER_MED = Border(left=THICK, right=THICK, top=THICK, bottom=THICK)
-
 HEADER_FILL = PatternFill("solid", fgColor="F2F2F2")
 
 DEFAULT_COLUMNS_WIDTH = {
@@ -263,8 +259,6 @@ class InvoiceBuilder():
             font=Font(bold=True),
             align=header_align,
         )
-        for col in range(start_col, start_col+7):
-            self.ws.cell(row=current_row, column=col).border = BORDER_MED
 
         # Table body
         current_row = current_row + 1
@@ -320,9 +314,6 @@ class InvoiceBuilder():
             amt_cell.number_format = "#,##0"
             total_formula_cells.append(amt_cell.coordinate)
 
-            # Borders
-            for col in range(start_col, start_col+7):
-                self.ws.cell(row=current_row, column=col).border = BORDER_THIN
             current_row += 1
 
         # Tổng Tiền
@@ -344,8 +335,12 @@ class InvoiceBuilder():
             align=money_align,
         )
         total_cell.number_format = "#,##0"
+
+        # Border
         for col in range(start_col, start_col+7):
-            self.ws.cell(row=current_row, column=col).border = BORDER_MED
+            self.ws.cell(row=start_row+3, column=col).border = Border(top=THICK)
+        for col in range(start_col, start_col+7):
+            self.ws.cell(row=current_row, column=col).border = Border(top=THICK)
 
         return current_row
 
@@ -430,10 +425,10 @@ class InvoiceBuilder():
 if __name__ == "__main__":
 
     items = [
-            {TableAttribute.NAME: "cát", TableAttribute.TYPE: "xe", TableAttribute.QUANTITY: 2, TableAttribute.PRICE: 450000},
-            {TableAttribute.NAME: "xi măng", TableAttribute.TYPE: "bao", TableAttribute.QUANTITY: 10, TableAttribute.PRICE: 80000},
-            {TableAttribute.NAME: "đá 1/2", TableAttribute.TYPE: "xe", TableAttribute.QUANTITY: 1, TableAttribute.PRICE: 450000},
-            {TableAttribute.NAME: "gạch ống", TableAttribute.TYPE: "viên", TableAttribute.QUANTITY: 2000, TableAttribute.PRICE: 950},
+        {TableAttribute.NAME.value: "cát", TableAttribute.TYPE.value: "xe", TableAttribute.QUANTITY.value: 2, TableAttribute.PRICE.value: 450000},
+        {TableAttribute.NAME.value: "xi măng", TableAttribute.TYPE.value: "bao", TableAttribute.QUANTITY.value: 10, TableAttribute.PRICE.value: 80000},
+        {TableAttribute.NAME.value: "đá 1/2", TableAttribute.TYPE.value: "xe", TableAttribute.QUANTITY.value: 1, TableAttribute.PRICE.value: 450000},
+        {TableAttribute.NAME.value: "gạch ống", TableAttribute.TYPE.value: "viên", TableAttribute.QUANTITY.value: 2000, TableAttribute.PRICE.value: 950},
     ]
 
     builder = InvoiceBuilder()
