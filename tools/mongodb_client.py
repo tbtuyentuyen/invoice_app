@@ -3,7 +3,6 @@
 
 import os
 
-from bson import ObjectId
 from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 from PyQt5.QtCore import QObject, pyqtSignal
@@ -15,6 +14,7 @@ CONFIG_PATH = os.environ['CONFIG_PATH']
 
 
 class MongoDBWorker(QObject):
+    """ MongoDB worker"""
     finished = pyqtSignal(str)
 
     def __init__(self, mongo_client):
@@ -72,18 +72,17 @@ class MongoDBClient:
             if doc:
                 return str(doc["_id"])
 
-    def add_invoice(self, data_id: str, data: list) -> None:
+    def add_invoice(self, data_id: str, data: list) -> bool|str:
         """ Insert one invoice to collection """
-        data_list = []
-        for item in data:
-            data_list.append({key.value: value for key, value in item.items()})
-        data_dict = {'_id': data_id, 'data': data_list}
+        data_dict = {'_id': data_id, 'data': data}
 
         if not self.offline_mode:
             self.invoice_col.insert_one(data_dict)
+            return True
         else:
             save_path = os.path.join(self.config.backup_folder, f"{data_id}.json")
             save_json(data_dict, save_path)
+            return save_path
 
     def delete_invoice(self, data: dict) -> None:
         """ Delete one invoice out of collection """
@@ -94,7 +93,7 @@ class MongoDBClient:
         """ Modify invoice infomation """
         if not self.offline_mode:
             self.invoice_col.update_one(
-                {"_id": ObjectId(id_invoice)},
+                {"_id": id_invoice},
                 {'$set': new_invoice}
             )
 

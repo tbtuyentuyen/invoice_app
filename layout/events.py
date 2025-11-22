@@ -68,19 +68,34 @@ class Events():
     def on_export_button_clicked(self):
         """ Event clicked on export button """
         data = self.parent.middle_layout.table_layout.get_table_data()
-        path = self.invoice_builder.build(data)
-        name = os.path.basename(path).split('.')[0]
-        self.parent.parent.mongodb_client.add_invoice(name, data)
-        QMessageBox.information(
-            None,
-            "Xuất hóa đơn thành công",
-            f"Hóa đơn được lưu tại:\n'{path}'"
-        )
-        self.parent.middle_layout.table_layout.clean_table()
+        if data:
+            path = self.invoice_builder.build(data)
+            name = os.path.basename(path).split('.')[0]
+
+            result = self.parent.parent.mongodb_client.add_invoice(name, data)
+            if isinstance(result, bool):
+                print("[INFO] Thông tin hóa đơn đã được tải lên database.")
+            else:
+                print(f"[INFO] Thông tin hóa đơn đã được lưu tại: '{result}'")
+
+            QMessageBox.information(
+                None,
+                "Xuất hóa đơn thành công",
+                f"Hóa đơn được lưu tại:\n'{path}'."
+            )
+            self.parent.middle_layout.table_layout.clean_table()
+        else:
+            QMessageBox.warning(
+                None,
+                "Xuất hóa đơn thất bại",
+                "Xin điền thông hóa đơn hoặc người mua trước khi xuất hóa đơn!"
+            )
 
     def on_set_export_path_clicked(self):
         """ Event clicked on set export path """
-        folder_path = QFileDialog.getExistingDirectory(None, "Select Folder", self.parent.config.export_folder)
+        folder_path = QFileDialog.getExistingDirectory(
+            None, "Select Folder", self.parent.config.export_folder
+        )
 
         if folder_path:
             print(f"Selected folder: {folder_path}")
@@ -99,7 +114,9 @@ class Events():
         close_box.setWindowIcon(close_icon)
 
         close_box.setWindowTitle("Bạn có muốn đóng ứng dụng?")
-        close_box.setText("Dữ liệu của phiên làm việc hiện tại sẽ bị xóa.\nNhấn 'Có' nếu bạn muốn đóng ứng dụng.")
+        close_box.setText(
+            "Dữ liệu của phiên làm việc hiện tại sẽ bị xóa.\nNhấn 'Có' nếu bạn muốn đóng ứng dụng."
+        )
         close_box.addButton(button_accept, QMessageBox.YesRole)
         close_box.addButton(button_reject, QMessageBox.NoRole)
         close_box.exec_()

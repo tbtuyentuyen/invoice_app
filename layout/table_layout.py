@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (QVBoxLayout, QHBoxLayout, QLineEdit,
 from layout.styling import Style
 from layout.custom_widget import QCustomTableWidget
 from tools.common import TableAttribute
+from tools.utils import clear_format_money
 
 
 class TableLayout(QVBoxLayout, Style):
@@ -100,9 +101,12 @@ class TableLayout(QVBoxLayout, Style):
             for col, key in enumerate(TableAttribute):
                 item = self.table_widget.item(row, col)
                 if item is not None:
-                    row_data[key] = item.text()
+                    if key in [TableAttribute.PRICE, TableAttribute.SUM]:
+                        row_data[key.value] = int(clear_format_money(item.text()))
+                    else:
+                        row_data[key.value] = item.text()
                 else:
-                    row_data[key] = ""
+                    row_data[key.value] = ""
             table_data.append(row_data)
         return table_data
 

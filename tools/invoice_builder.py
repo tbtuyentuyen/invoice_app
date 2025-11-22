@@ -281,21 +281,21 @@ class InvoiceBuilder():
             self.ws.cell(
                 row=current_row,
                 column=start_col+1,
-                value=item[TableAttribute.NAME]
+                value=item[TableAttribute.NAME.value]
             ).alignment = item_align
 
             # Đơn vị tính
             self.ws.cell(
                 row=current_row,
                 column=start_col+2,
-                value=item[TableAttribute.TYPE]
+                value=item[TableAttribute.TYPE.value]
             ).alignment = item_align
 
             # Số lượng
             qty_cell = self.ws.cell(
                 row=current_row,
                 column=start_col+3,
-                value=int(item[TableAttribute.QUANTITY])
+                value=int(item[TableAttribute.QUANTITY.value])
             )
             qty_cell.number_format = "#,##0"
             qty_cell.alignment = item_align
@@ -304,7 +304,7 @@ class InvoiceBuilder():
             price_cell = self.ws.cell(
                 row=current_row,
                 column=start_col+4,
-                value=int(item[TableAttribute.PRICE])
+                value=int(item[TableAttribute.PRICE.value])
             )
             price_cell.number_format = "#,##0"
             price_cell.alignment = money_align
