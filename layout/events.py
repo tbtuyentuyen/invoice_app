@@ -67,8 +67,10 @@ class Events():
 
     def on_export_button_clicked(self):
         """ Event clicked on export button """
+        customer_data = self.parent.top_layout.get_data()
+        customer_sts = self.parent.top_layout.validate_all_data(customer_data)
         data = self.parent.middle_layout.table_layout.get_table_data()
-        if data:
+        if data and customer_sts:
             path = self.invoice_builder.build(data)
             name = os.path.basename(path).split('.')[0]
 

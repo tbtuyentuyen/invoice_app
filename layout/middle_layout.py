@@ -1,4 +1,4 @@
-""" Top Layout Module """
+""" Middle Layout Module """
 
 
 from PyQt5.QtWidgets import QHBoxLayout, QWidget
@@ -8,7 +8,7 @@ from layout.input_layout import InputLayout
 
 
 class MiddleLayout(QHBoxLayout):
-    """ Top Layout class """
+    """ Middle Layout class """
     def __init__(self, parent):
         super().__init__()
         self.parent = parent

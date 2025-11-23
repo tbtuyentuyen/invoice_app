@@ -5,6 +5,8 @@ import os
 from PyQt5.QtWidgets import QVBoxLayout
 
 from layout.events import Events
+from layout.styling import Style
+from layout.top_layout import TopLayout
 from layout.bottom_layout import BottomLayout
 from layout.middle_layout import MiddleLayout
 from tools.utils import load_json, save_json
@@ -12,7 +14,7 @@ from tools.utils import load_json, save_json
 
 CONFIG_PATH = os.environ['CONFIG_PATH']
 
-class MainLayout(QVBoxLayout): # pylint:disable=R0903
+class MainLayout(QVBoxLayout, Style): # pylint:disable=R0903
     """ Main layout class """
     def __init__(self, parent):
         super().__init__()
@@ -20,6 +22,7 @@ class MainLayout(QVBoxLayout): # pylint:disable=R0903
         self.config = load_json(CONFIG_PATH)
 
         self.events = Events(self)
+        self.top_layout = TopLayout(self)
         self.middle_layout = MiddleLayout(self)
         self.bottom_layout = BottomLayout()
 
@@ -27,6 +30,7 @@ class MainLayout(QVBoxLayout): # pylint:disable=R0903
         self.__connect_signals()
 
     def __init_ui(self):
+        self.addWidget(self.top_layout.frame)
         self.addLayout(self.middle_layout)
         self.addLayout(self.bottom_layout)
 

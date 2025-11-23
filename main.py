@@ -68,6 +68,22 @@ class MainWindow(QMainWindow): # pylint:disable=R0903
         self.mongodb_thread.started.connect(self.mongodb_worker.start_connection)
         self.mongodb_thread.start()
 
+    def resizeEvent(self, event):
+        window_w = self.width()
+        top_layout = self.main_layout.top_layout
+        for layout in ['customer_name_phone_layout', 'customer_company_layout',
+                       'customer_address_layout', 'customer_tax_payment_layout']:
+            input_layout = getattr(top_layout, layout)
+            if input_layout.second_widget:
+                input_layout.first_widget.input_widget.setFixedWidth(int(window_w * 0.25))
+                input_layout.first_widget.error_widget.setFixedWidth(int(window_w * 0.25))
+                input_layout.second_widget.input_widget.setFixedWidth(int(window_w * 0.25))
+                input_layout.second_widget.error_widget.setFixedWidth(int(window_w * 0.25))
+            else:
+                input_layout.first_widget.input_widget.setFixedWidth(int(window_w * 0.75))
+                input_layout.first_widget.error_widget.setFixedWidth(int(window_w * 0.75))
+        super().resizeEvent(event)
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()

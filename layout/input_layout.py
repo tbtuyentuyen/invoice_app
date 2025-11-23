@@ -1,46 +1,44 @@
 """ Input Layout Module """
 
 
-import re
 import qtawesome as qta
 from pydotdict import DotDict
 
 from PyQt5.QtCore import QStringListModel
 from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QLineEdit, QHBoxLayout, QCompleter
 
-from layout.styling import Style
-from layout.custom_widget import QMoneyLineEdit, InputFieldLayout
+from layout.custom_widget import QMoneyLineEdit, InputFieldLayout, VerifyInputWidget
 from tools.utils import clear_format_money
 from tools.common import TableAttribute, RegexPatterns, ErrorMessage, InputMode
 
 
-class InputLayout(QVBoxLayout, Style):
+class InputLayout(QVBoxLayout, VerifyInputWidget):
     """ Input layout class """
 
     _input_dict = DotDict({
         TableAttribute.NAME: {
-            'title': 'Tên:',
+            'title': f'{TableAttribute.NAME.value}:',
             'input_cls': QLineEdit,
-            'pattern': RegexPatterns.NAME,
-            'error_msg': ErrorMessage.NAME_INPUT,
+            'pattern': RegexPatterns.LETTERS_AND_DIGITS,
+            'error_msg': ErrorMessage.ONLY_LETTER_AND_NUMBER,
         },
         TableAttribute.QUANTITY: {
-            'title': 'Số lượng:',
+            'title': f'{TableAttribute.QUANTITY.value}:',
             'input_cls': QLineEdit,
-            'pattern': RegexPatterns.QUANTITY,
-            'error_msg': ErrorMessage.QUANTITY_INPUT,
+            'pattern': RegexPatterns.ONLY_DIGITS,
+            'error_msg': ErrorMessage.ONLY_NUMBER,
         },
         TableAttribute.TYPE: {
-            'title': 'Loại:',
+            'title': f'{TableAttribute.TYPE.value}:',
             'input_cls': QLineEdit,
-            'pattern': RegexPatterns.TYPE,
-            'error_msg': ErrorMessage.TYPE_INPUT,
+            'pattern': RegexPatterns.LETTERS_AND_DIGITS,
+            'error_msg': ErrorMessage.ONLY_LETTER_AND_NUMBER,
         },
         TableAttribute.PRICE: {
-            'title': 'Giá:',
+            'title': f'{TableAttribute.PRICE.value}:',
             'input_cls': QMoneyLineEdit,
-            'pattern': RegexPatterns.PRICE,
-            'error_msg': ErrorMessage.PRICE_INPUT,
+            'pattern': RegexPatterns.ONLY_DIGITS,
+            'error_msg': ErrorMessage.ONLY_NUMBER,
         }
     })
 
@@ -97,33 +95,6 @@ class InputLayout(QVBoxLayout, Style):
         input_widget.setCompleter(completer)
         return model
 
-    def __verify_input_logic(self, key: TableAttribute, data: str):
-        status = False
-        input_widget = self._input_dict[key].input_widget
-        error_widget = self._input_dict[key].error_widget
-        pattern = self._input_dict[key].pattern.value
-        error_msg = self._input_dict[key].error_msg.value
-
-        if not data:
-            # data field is empty
-            error_widget.setText(ErrorMessage.NONE_INPUT.value)
-            self.set_style_error_widget(error_widget, is_visible=True)
-            self.set_plain_text_edit_error(input_widget)
-
-        else:
-            if re.fullmatch(pattern, data.lower()):
-                # data is valid
-                self.set_style(input_widget)
-                self.set_style_error_widget(error_widget, is_visible=False)
-                status = True
-
-            else:
-                error_widget.setText(error_msg)
-                self.set_style_error_widget(error_widget, is_visible=True)
-                self.set_plain_text_edit_error(input_widget)
-
-        return status
-
     def clear_all_data_input_field(self):
         """ Clear all data in input field """
         for item in self._input_dict.values():
@@ -143,7 +114,7 @@ class InputLayout(QVBoxLayout, Style):
         """ Validate all data before adding to table"""
         validate_status = True
         for key, item in data.items():
-            status = self.__verify_input_logic(key=key, data=item)
+            status = self.verify_input_logic(widget_dict=self._input_dict[key], data=item)
             if not status:
                 validate_status = False
         return validate_status

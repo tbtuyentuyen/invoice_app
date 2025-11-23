@@ -62,7 +62,6 @@ class Style():
                     font-size: 18px;
                     padding: 5px;
                 }
-
             """
         elif name in ['QLineEdit', 'QMoneyLineEdit']:
             return """
@@ -79,9 +78,15 @@ class Style():
                     color: #ffffff; /* Selection text color */
                 }
             """
+        elif name == "QFrame":
+            return """
+                QFrame#top_frame {
+                    border: 1px solid #666;
+                    border-radius: 10px;
+                }
+            """
         else:
             raise TypeError(f"[ERROR] Invalid class name {name}!")
-
 
     def set_style(self, obj):
         """ Set style sheet """
@@ -101,6 +106,35 @@ class Style():
                 color: transparent;
                 font-size: 13px;
             """)
+
+    def set_style_customer_input_widget(self, obj):
+        """ Set style customer input widget """
+        obj.setStyleSheet("""
+            QLineEdit {
+                background-color: #EAEFEF;
+                color: #320A6B;
+                font-family: "Consolas", "Monaco", monospace;
+                font-size: 16px;
+                border: none;
+                border-bottom: 1px solid #aaa;
+                padding: 7px;
+            }
+            QLineEdit::selection {
+                background-color: #61afef; /* Selection background */
+                color: #ffffff; /* Selection text color */
+            }
+        """)
+
+    def set_style_customer_label_widget(self, obj):
+        """ Set style customer label widget """
+        obj.setStyleSheet("""
+            QLabel {
+                color: black;
+                font-size: 16px;
+                font-weight: 500;
+                font-family: 'Segoe UI';
+            }
+        """)
 
     def set_plain_text_edit_error(self, obj):
         """ Set plain text edit to red """

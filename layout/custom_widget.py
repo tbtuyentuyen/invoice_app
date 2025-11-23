@@ -1,12 +1,14 @@
 """ Custom Widget module """
 
 
+import re
 from pydotdict import DotDict
 from PyQt5.QtWidgets import QLineEdit, QTableWidget, QMenu, QVBoxLayout, QWidget, QHBoxLayout, QLabel
 from PyQt5.QtCore import Qt
 
-from tools.utils import clear_format_money
 from layout.styling import Style
+from tools.utils import clear_format_money
+from tools.common import ErrorMessage
 
 
 class QMoneyLineEdit(QLineEdit):
@@ -164,3 +166,89 @@ class InputFieldLayout(QVBoxLayout, Style):
 
         self.addLayout(input_layout)
         self.addLayout(error_layout)
+
+class CustomerInputFieldLayout(QHBoxLayout, Style):
+    """Customer Input Field Layout class"""
+
+    def __init__(self, first_dict: DotDict, second_dict: DotDict = None):
+        super().__init__()
+
+        self.first_widget = self._build_field(first_dict)
+        self._add_field_to_layout(self.first_widget)
+        first_dict.update({
+            'input_widget': self.first_widget.input_widget,
+            'error_widget': self.first_widget.error_widget
+        })
+
+        self.second_widget = None
+        if second_dict:
+            self.addStretch(1)
+            self.second_widget = self._build_field(second_dict)
+            self._add_field_to_layout(self.second_widget)
+            second_dict.update({
+                'input_widget': self.second_widget.input_widget,
+                'error_widget': self.second_widget.error_widget
+            })
+
+        self.addStretch(1)
+
+    def _build_field(self, info_dict: DotDict) -> dict:
+        title_widget = QLabel(info_dict.title)
+        self.set_style_customer_label_widget(title_widget)
+
+        input_widget = QLineEdit()
+        self.set_style_customer_input_widget(input_widget)
+
+        error_widget = QLabel()
+        self.set_style_error_widget(error_widget, is_visible=False)
+
+        return DotDict({
+            'title_widget': title_widget,
+            'input_widget': input_widget,
+            'error_widget': error_widget
+        })
+
+    def _add_field_to_layout(self, widgets: DotDict):
+        input_layout = QHBoxLayout()
+        input_layout.addWidget(widgets.title_widget)
+        input_layout.addWidget(widgets.input_widget)
+
+        error_layout = QHBoxLayout()
+        error_layout.addStretch(2)
+        error_layout.addWidget(widgets.error_widget)
+
+        combo = QVBoxLayout()
+        combo.addLayout(input_layout)
+        combo.addLayout(error_layout)
+
+        self.addLayout(combo)
+
+class VerifyInputWidget(Style):
+    """ Verify Input Widget class """
+    def verify_input_logic(self, widget_dict: DotDict, data: str):
+        """ Verify input logic function """
+        status = False
+        input_widget = widget_dict.input_widget
+        error_widget = widget_dict.error_widget
+        pattern = widget_dict.pattern.value
+        error_msg = widget_dict.error_msg.value
+
+        if not data:
+            # data field is empty
+            error_widget.setText(ErrorMessage.EMPTY_INPUT.value)
+            self.set_style_error_widget(error_widget, is_visible=True)
+            self.set_plain_text_edit_error(input_widget)
+
+        else:
+            if re.fullmatch(pattern, data.lower()):
+                # data is valid
+                self.set_style(input_widget)
+                self.set_style_error_widget(error_widget, is_visible=False)
+                status = True
+
+            else:
+                error_widget.setText(error_msg)
+                self.set_style_error_widget(error_widget, is_visible=True)
+                self.set_plain_text_edit_error(input_widget)
+
+        return status
