@@ -1,9 +1,12 @@
 """ Utilities Module """
 
-
+import os
 import json
+
 from pydotdict import DotDict
 from PIL import Image as PILImage
+from spire.xls import Workbook as SpireWB
+
 from openpyxl.drawing.image import Image
 from openpyxl.drawing.xdr import XDRPositiveSize2D
 from openpyxl.drawing.spreadsheet_drawing import OneCellAnchor, AnchorMarker
@@ -14,6 +17,7 @@ PX_TO_EMU = 9525
 
 def load_json(path: str) -> dict:
     """ Load json data"""
+    assert os.path.isfile(path), f"[ERROR] File not found: {path}"
     with open(path, mode='r', encoding='utf-8') as f:
         data = json.load(f)
     return DotDict(data)
@@ -22,6 +26,20 @@ def save_json(data: dict, path: str) -> None:
     """ Save json file """
     with open(path, mode='w', encoding='utf-8') as json_file:
         json.dump(data, json_file, indent=4)
+
+def export_xlsx_to_pdf(xlsx_path: str, remove_xlsx:bool = False) -> str:
+    """ Export xlsx to pdf file"""
+    assert os.path.isfile(xlsx_path), f"[ERROR] File not found: {xlsx_path}"
+    xlsx_exts = '.' +  xlsx_path.split('.')[-1]
+    pdf_path = xlsx_path.replace(xlsx_exts, '.pdf')
+    workbook = SpireWB()
+    workbook.LoadFromFile(xlsx_path)
+    workbook.ConverterSetting.SheetFitToPage = True
+    workbook.SaveToFile(pdf_path)
+    workbook.Dispose()
+    if remove_xlsx:
+        os.remove(xlsx_path)
+    return pdf_path
 
 def _get_range_pixel_size(ws, start_cell: str, end_cell: str):
     """Get total pixel width/height for a cell range (handles merged cells)."""

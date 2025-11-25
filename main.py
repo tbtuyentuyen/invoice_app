@@ -68,7 +68,8 @@ class MainWindow(QMainWindow): # pylint:disable=R0903
         self.mongodb_thread.started.connect(self.mongodb_worker.start_connection)
         self.mongodb_thread.start()
 
-    def resizeEvent(self, event):
+    def resizeEvent(self, event): # pylint: disable=invalid-name
+        """ resize event"""
         window_w = self.width()
         top_layout = self.main_layout.top_layout
         for layout in ['customer_name_phone_layout', 'customer_company_layout',

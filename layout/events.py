@@ -69,12 +69,16 @@ class Events():
         """ Event clicked on export button """
         customer_data = self.parent.top_layout.get_data()
         customer_sts = self.parent.top_layout.validate_all_data(customer_data)
-        data = self.parent.middle_layout.table_layout.get_table_data()
-        if data and customer_sts:
-            path = self.invoice_builder.build(data)
+        invoice_data = self.parent.middle_layout.table_layout.get_table_data()
+        if invoice_data and customer_sts:
+            try:
+                path = self.invoice_builder.build(invoice_data, customer_data)
+            except Exception as err: # pylint: disable=broad-exception-caught
+                print(f"[ERROR] Xuất hóa đơn thất bại: {err}")
+                return
             name = os.path.basename(path).split('.')[0]
 
-            result = self.parent.parent.mongodb_client.add_invoice(name, data)
+            result = self.parent.parent.mongodb_client.add_invoice(name, invoice_data)
             if isinstance(result, bool):
                 print("[INFO] Thông tin hóa đơn đã được tải lên database.")
             else:
@@ -86,6 +90,7 @@ class Events():
                 f"Hóa đơn được lưu tại:\n'{path}'."
             )
             self.parent.middle_layout.table_layout.clean_table()
+            self.parent.top_layout.clear_all_data_input_field()
         else:
             QMessageBox.warning(
                 None,

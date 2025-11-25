@@ -18,16 +18,15 @@ from datetime import datetime
 from typing import  Dict, Optional
 
 from openpyxl import Workbook
-from openpyxl.worksheet.page import PageMargins
+from openpyxl.worksheet.page import PageMargins # pylint: disable=ungrouped-imports
 from openpyxl.styles import Alignment, Border, Side, Font, PatternFill
 from openpyxl.utils import get_column_letter, column_index_from_string
 
-from tools.common import TableAttribute
-from tools.utils import load_json, add_image_fit_cell
+from tools.common import TableAttribute, CustomerAttribute
+from tools.utils import load_json, add_image_fit_cell, export_xlsx_to_pdf
 
 CONFIG_PATH = os.environ['CONFIG_PATH']
 SHOP_INFO_PATH = os.environ['SHOP_INFO_PATH']
-BUYER_INFO_PATH = os.environ['BUYER_INFO_PATH']
 
 THIN = Side(style="thin", color="000000")
 MED  = Side(style="medium", color="000000")
@@ -55,17 +54,16 @@ Item = Dict[str, Optional[str]]  # name, unit, qty, price
 class InvoiceBuilder():
     """ Invoicce Builder Class """
     def __init__(self):
-
+        self.customer_name = None
         self.config = load_json(CONFIG_PATH)
         self.shop_info = load_json(SHOP_INFO_PATH)
-        self.buyer_info = load_json(BUYER_INFO_PATH)
 
         # Create workbook
         self.wb = Workbook()
-        self.ws = self.wb.active
-        self.ws.title = "HoaDon"
+        self.ws = None
 
-        # Page setup
+    def _sheet_init(self):
+        self.ws = self.wb.create_sheet("HoaDon")
         self.ws.page_margins = PageMargins(left=0.3, right=0.3, top=0.4, bottom=0.4)
         self.ws.sheet_properties.pageSetUpPr.fitToPage = True
         self.ws.page_setup.fitToWidth = 1
@@ -73,6 +71,7 @@ class InvoiceBuilder():
         self.ws.sheet_view.showGridLines = False
         self._set_col_widths(DEFAULT_COLUMNS_WIDTH)
         self._set_row_heights(DEFAULT_ROW_HEIGHT)
+
 
     def _set_col_widths(self, widths: Dict[str, float]):
         for col, width in widths.items():
@@ -103,15 +102,20 @@ class InvoiceBuilder():
     def _draw_line(self, row:int, start_col:str, end_col:str, line_style:Side=THIN):
         start_idx = column_index_from_string(start_col)
         end_idx = column_index_from_string(end_col)
-        for col in range(start_idx, end_idx):  # A1:E1
+        for col in range(start_idx, end_idx+1):  # A1:E1
             self.ws.cell(row=row, column=col).border = Border(bottom=line_style)
 
     def _save_file(self):
-        file_name = f'invoice_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+        file_name = f'invoice_{datetime.now().strftime("%y%m%d_%H%M%S")}.xlsx'
         export_path = os.path.join(self.config.export_folder, file_name)
         os.makedirs(self.config.export_folder, exist_ok=True)
+
+        # Save xlsx file
         self.wb.save(export_path)
-        return export_path
+
+        # Export to pdf
+        pdf_path = export_xlsx_to_pdf(export_path, remove_xlsx=True)
+        return pdf_path
 
 # -------------------------------
 # Core builder
@@ -200,19 +204,18 @@ class InvoiceBuilder():
         )
 
         row = 8
-        self._draw_line(row, 'A', 'H')
+        self._draw_line(row, left_start, right_end)
         return row
 
-    def _build_buyer_info(self, start_row:int):
-
+    def _build_customer_info(self, start_row:int, customer_data:dict):
         left_start = 'A'
         left_end = 'B'
         right_start = 'C'
-        right_end = 'H'
+        right_end = 'G'
         normal_size = 12
 
         start_row = start_row + 1
-        for index, (key, item) in enumerate(self.buyer_info.items()):
+        for index, (key, item) in enumerate(customer_data.items()):
             row = start_row + index
             self._merge(
                 f"{left_start}{row}:{left_end}{row}",
@@ -228,13 +231,13 @@ class InvoiceBuilder():
                 align=Alignment(horizontal="center", vertical="center", wrap_text=True),
             )
 
-            self._draw_line(row, right_start, 'H', DASH)
+            self._draw_line(row, right_start, right_end, DASH)
 
         row += 1
-        self._draw_line(row, 'A', 'H')
+        self._draw_line(row, left_start, right_end)
         return row
 
-    def _build_invoice(self, start_row:int, data:dict|list):
+    def _build_invoice(self, start_row:int, invoice_data:dict|list):
         """ Buy main invoice """
 
         total_size = 15
@@ -263,7 +266,7 @@ class InvoiceBuilder():
         # Table body
         current_row = current_row + 1
         total_formula_cells = []
-        for i, item in enumerate(data, start=1):
+        for i, item in enumerate(invoice_data, start=1):
             # STT
             self.ws.cell(
                 row=current_row,
@@ -413,23 +416,14 @@ class InvoiceBuilder():
         )
         return row
 
-    def build(self, data:list):
+    def build(self, invoice_data:list, customer_data:list):
         """ Build invoice and save under excel file """
+        for sheet in self.wb.sheetnames:
+            del self.wb[sheet]
+        self.customer_name = customer_data[CustomerAttribute.NAME.value]
+        self._sheet_init()
         row = self._build_shop_info()
-        row = self._build_buyer_info(start_row=row)
-        row = self._build_invoice(start_row=row, data=data)
+        row = self._build_customer_info(start_row=row, customer_data=customer_data)
+        row = self._build_invoice(start_row=row, invoice_data=invoice_data)
         row = self._build_confirm(start_row=row)
         return os.path.abspath(self._save_file())
-
-
-if __name__ == "__main__":
-
-    items = [
-        {TableAttribute.NAME.value: "cát", TableAttribute.TYPE.value: "xe", TableAttribute.QUANTITY.value: 2, TableAttribute.PRICE.value: 450000},
-        {TableAttribute.NAME.value: "xi măng", TableAttribute.TYPE.value: "bao", TableAttribute.QUANTITY.value: 10, TableAttribute.PRICE.value: 80000},
-        {TableAttribute.NAME.value: "đá 1/2", TableAttribute.TYPE.value: "xe", TableAttribute.QUANTITY.value: 1, TableAttribute.PRICE.value: 450000},
-        {TableAttribute.NAME.value: "gạch ống", TableAttribute.TYPE.value: "viên", TableAttribute.QUANTITY.value: 2000, TableAttribute.PRICE.value: 950},
-    ]
-
-    builder = InvoiceBuilder()
-    print(builder.build(items))
