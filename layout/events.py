@@ -1,13 +1,13 @@
 """ Event Module """
 
 
-import os
+from datetime import datetime
 
 import qtawesome as qta
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QPushButton
 from PyQt5.QtGui import QCloseEvent
 
-from tools.common import InputMode
+from tools.common import InputMode, CustomerAttribute
 from tools.invoice_builder import InvoiceBuilder
 
 
@@ -67,27 +67,35 @@ class Events():
 
     def on_export_button_clicked(self):
         """ Event clicked on export button """
+        invoice_id = f'invoice_{datetime.now().strftime("%y%m%d_%H%M%S")}'
         customer_data = self.parent.top_layout.get_data()
         customer_sts = self.parent.top_layout.validate_all_data(customer_data)
         invoice_data = self.parent.middle_layout.table_layout.get_table_data()
         if invoice_data and customer_sts:
-            try:
-                path = self.invoice_builder.build(invoice_data, customer_data)
-            except Exception as err: # pylint: disable=broad-exception-caught
-                print(f"[ERROR] Xuất hóa đơn thất bại: {err}")
-                return
-            name = os.path.basename(path).split('.')[0]
+            # invoice_path = self.invoice_builder.build(invoice_data)
+            invoice_result = self.parent.parent.mongodb_client.add_document(invoice_id, invoice_data)
+            customer_id = customer_data[CustomerAttribute.PHONE_NUMBER.value]
+            customer_result = self.parent.parent.mongodb_client.add_document(customer_id, customer_data)
 
-            result = self.parent.parent.mongodb_client.add_invoice(name, invoice_data)
-            if isinstance(result, bool):
+            time_dict = {"customer_id": customer_id,"updated_at": datetime.now()}
+            self.parent.parent.mongodb_client.modify_document(invoice_id, time_dict, self.parent.parent.mongodb_client.invoice_col)
+
+        # if invoice_data and customer_sts:
+        #     try:
+        #         path = self.invoice_builder.build(invoice_data, customer_data)
+        #     except Exception as err: # pylint: disable=broad-exception-caught
+        #         print(f"[ERROR] Xuất hóa đơn thất bại: {err}")
+        #         return
+            # name = os.path.basename(path).split('.')[0]
+            if isinstance(invoice_result, bool) and isinstance(customer_result, bool):
                 print("[INFO] Thông tin hóa đơn đã được tải lên database.")
             else:
-                print(f"[INFO] Thông tin hóa đơn đã được lưu tại: '{result}'")
+                print(f"[INFO] Thông tin hóa đơn đã được lưu tại: '{customer_result}' và {invoice_result}'")
 
             QMessageBox.information(
                 None,
                 "Xuất hóa đơn thành công",
-                f"Hóa đơn được lưu tại:\n'{path}'."
+                f"Hóa đơn được lưu tại:\n'{invoice_id}'."   # TODO: Update invoice path
             )
             self.parent.middle_layout.table_layout.clean_table()
             self.parent.top_layout.clear_all_data_input_field()
@@ -105,7 +113,6 @@ class Events():
         )
 
         if folder_path:
-            print(f"Selected folder: {folder_path}")
             self.parent.config.export_folder = folder_path
             self.parent.save_config()
 

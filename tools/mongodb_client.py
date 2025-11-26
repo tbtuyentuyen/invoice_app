@@ -43,6 +43,7 @@ class MongoDBClient:
         )
         database = self.client["invoice_app"]
         self.invoice_col = database["invoices"]
+        self.customer_col = database["customer"]
         self.offline_mode = True
 
         os.makedirs(self.config.backup_folder, exist_ok=True)
@@ -65,36 +66,39 @@ class MongoDBClient:
         if not self.offline_mode:
             self.client.close()
 
-    def get_id_invoice(self, data: dict) -> str:
-        """ Get id of specific invoice """
+    def get_id_from_collection(self, data) -> str:
+        """ Get id of specific collection """
+        collection = self.invoice_col if isinstance(data, list) else self.customer_col
         if not self.offline_mode:
-            doc = self.invoice_col.find_one(data)
+            doc = collection.find_one(data)
             if doc:
                 return str(doc["_id"])
 
-    def add_invoice(self, data_id: str, data: list) -> bool|str:
-        """ Insert one invoice to collection """
+    def add_document(self, data_id: str, data) -> bool|str:
+        """ Insert one document to specific collection """
         data_dict = {'_id': data_id, 'data': data}
+        collection = self.invoice_col if isinstance(data, list) else self.customer_col
 
         if not self.offline_mode:
-            self.invoice_col.insert_one(data_dict)
+            collection.insert_one(data_dict)
             return True
         else:
             save_path = os.path.join(self.config.backup_folder, f"{data_id}.json")
             save_json(data_dict, save_path)
             return save_path
 
-    def delete_invoice(self, data: dict) -> None:
-        """ Delete one invoice out of collection """
+    def delete_document(self, data) -> None:
+        """ Delete one document out of collection """
+        collection = self.invoice_col if isinstance(data, list) else self.customer_col
         if not self.offline_mode:
-            self.invoice_col.delete_one(data)
+            collection.delete_one(data)
 
-    def modify_invoice(self, id_invoice: str, new_invoice: dict) -> None:
+    def modify_document(self, data_id: str, new_data, collection) -> None:
         """ Modify invoice infomation """
         if not self.offline_mode:
-            self.invoice_col.update_one(
-                {"_id": id_invoice},
-                {'$set': new_invoice}
+            collection.update_one(
+                {"_id": data_id},
+                {'$set': new_data}
             )
 
     def query_invoice_name(self):

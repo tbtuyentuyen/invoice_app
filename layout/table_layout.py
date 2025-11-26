@@ -101,7 +101,7 @@ class TableLayout(QVBoxLayout, Style):
             for col, key in enumerate(TableAttribute):
                 item = self.table_widget.item(row, col)
                 if item is not None:
-                    if key in [TableAttribute.PRICE, TableAttribute.SUM]:
+                    if key in [TableAttribute.PRICE, TableAttribute.SUM, TableAttribute.QUANTITY]:
                         row_data[key.value] = int(clear_format_money(item.text()))
                     else:
                         row_data[key.value] = item.text()

@@ -8,7 +8,7 @@ from PyQt5.QtCore import Qt
 
 from layout.styling import Style
 from tools.utils import clear_format_money
-from tools.common import ErrorMessage
+from tools.common import ErrorMessage, TableAttribute
 
 
 class QMoneyLineEdit(QLineEdit):
@@ -242,7 +242,10 @@ class VerifyInputWidget(Style):
         else:
             if re.fullmatch(pattern, data.lower()):
                 # data is valid
-                self.set_style(input_widget)
+                if widget_dict.title.replace(':', '') in TableAttribute.list():
+                    self.set_style(input_widget)
+                else:
+                    self.set_style_customer_input_widget(input_widget)
                 self.set_style_error_widget(error_widget, is_visible=False)
                 status = True
 
