@@ -170,3 +170,15 @@ class Style():
                 font-family: "Consolas", "Monaco", monospace;
             }
         """)
+
+    def set_style_for_toggle_button(self, obj_btn):
+        """ Set style for toggle"""
+        obj_btn.setStyleSheet("""
+            QPushButton {
+                border: none;
+                padding: 6px;
+            }
+            QPushButton:checked {
+                border: none;
+            }
+        """)
