@@ -105,9 +105,8 @@ class InvoiceBuilder():
         for col in range(start_idx, end_idx+1):  # A1:E1
             self.ws.cell(row=row, column=col).border = Border(bottom=line_style)
 
-    def _save_file(self):
-        file_name = f'invoice_{datetime.now().strftime("%y%m%d_%H%M%S")}.xlsx'
-        export_path = os.path.join(self.config.export_folder, file_name)
+    def _save_file(self, invoice_id:str):
+        export_path = os.path.join(self.config.export_folder, f"{invoice_id}.xlsx")
         os.makedirs(self.config.export_folder, exist_ok=True)
 
         # Save xlsx file
@@ -416,7 +415,7 @@ class InvoiceBuilder():
         )
         return row
 
-    def build(self, invoice_data:list, customer_data:list):
+    def build(self, invoice_id:str, invoice_data:list, customer_data:list):
         """ Build invoice and save under excel file """
         for sheet in self.wb.sheetnames:
             del self.wb[sheet]
@@ -426,4 +425,4 @@ class InvoiceBuilder():
         row = self._build_customer_info(start_row=row, customer_data=customer_data)
         row = self._build_invoice(start_row=row, invoice_data=invoice_data)
         row = self._build_confirm(start_row=row)
-        return os.path.abspath(self._save_file())
+        self._save_file(invoice_id)
