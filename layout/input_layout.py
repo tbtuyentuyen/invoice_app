@@ -21,24 +21,28 @@ class InputLayout(QVBoxLayout, VerifyInputWidget):
             'input_cls': QLineEdit,
             'pattern': RegexPatterns.LETTERS_AND_DIGITS,
             'error_msg': ErrorMessage.ONLY_LETTER_AND_NUMBER,
+            'is_title': True
         },
         TableAttribute.QUANTITY: {
             'title': f'{TableAttribute.QUANTITY.value}:',
             'input_cls': QLineEdit,
             'pattern': RegexPatterns.ONLY_DIGITS,
             'error_msg': ErrorMessage.ONLY_NUMBER,
+            'is_title': False
         },
         TableAttribute.TYPE: {
             'title': f'{TableAttribute.TYPE.value}:',
             'input_cls': QLineEdit,
             'pattern': RegexPatterns.LETTERS_AND_DIGITS,
             'error_msg': ErrorMessage.ONLY_LETTER_AND_NUMBER,
+            'is_title': True
         },
         TableAttribute.PRICE: {
             'title': f'{TableAttribute.PRICE.value}:',
             'input_cls': QMoneyLineEdit,
             'pattern': RegexPatterns.ONLY_DIGITS,
             'error_msg': ErrorMessage.ONLY_NUMBER,
+            'is_title': False
         }
     })
 
