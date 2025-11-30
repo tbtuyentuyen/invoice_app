@@ -71,6 +71,15 @@ class Events():
         customer_sts = self.parent.top_layout.validate_all_data(customer_data)
         invoice_data = self.parent.middle_layout.table_layout.get_table_data()
         if invoice_data and customer_sts:
+            reply = QMessageBox.question(
+                None,
+                "Xác nhận xuất hóa đơn",
+                "Bạn có chắc chắn muốn xuất hóa đơn?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No
+            )
+            if reply == QMessageBox.No:
+                return
             mongodb_client = self.parent.parent.mongodb_client
 
             # Customer

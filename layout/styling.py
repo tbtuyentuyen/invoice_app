@@ -136,10 +136,10 @@ class Style():
             }
         """)
 
-    def set_plain_text_edit_error(self, obj):
+    def set_style_text_input_error(self, obj):
         """ Set plain text edit to red """
         obj.setStyleSheet("""
-            QPlainTextEdit {
+            QLineEdit {
                 background-color: #EAEFEF;
                 color: #320A6B;
                 font-family: "Consolas", "Monaco", monospace;

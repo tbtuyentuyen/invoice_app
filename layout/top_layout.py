@@ -137,11 +137,11 @@ class TopLayout(QVBoxLayout, VerifyInputWidget):
     def validate_all_data(self, data: dict):
         """ Validate all data before adding to table"""
         validate_status = True
-        for key, item in data.items():
-            if key in [CustomerAttribute.NAME.value, CustomerAttribute.PHONE_NUMBER.value]:
+        for key, value in data.items():
+            if key in [CustomerAttribute.NAME.value, CustomerAttribute.PHONE_NUMBER.value] or value:
                 status = self.verify_input_logic(
                     widget_dict=self._customer_dict[CustomerAttribute(key)],
-                    data=item
+                    data=value
                 )
                 if not status:
                     validate_status = False

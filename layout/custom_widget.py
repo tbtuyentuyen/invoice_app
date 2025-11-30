@@ -200,7 +200,7 @@ class InputFieldLayout(QVBoxLayout, Style):
             else:
                 # Invalid → show error
                 self.error_widget.setText(error_msg)
-                self.set_plain_text_edit_error(self.input_widget) # Border red
+                self.set_style_text_input_error(self.input_widget) # Border red
                 self.set_style_error_widget(self.error_widget, is_visible=True)
 
         self.input_widget.textChanged.connect(on_text_changed)
@@ -217,6 +217,12 @@ class CustomerInputFieldLayout(QHBoxLayout, Style):
             'input_widget': self.left_field.input_widget,
             'error_widget': self.left_field.error_widget
         })
+        self._connect_text_entered(
+            self.left_field.input_widget,
+            self.left_field.error_widget,
+            left_attr.pattern.value,
+            left_attr.error_msg.value
+        )
 
         # If row have 2 column
         self.right_field = None
@@ -228,6 +234,12 @@ class CustomerInputFieldLayout(QHBoxLayout, Style):
                 'input_widget': self.right_field.input_widget,
                 'error_widget': self.right_field.error_widget
             })
+            self._connect_text_entered(
+                self.right_field.input_widget,
+                self.right_field.error_widget,
+                right_attr.pattern.value,
+                right_attr.error_msg.value
+            )
 
         self.addStretch(1)
 
@@ -262,6 +274,36 @@ class CustomerInputFieldLayout(QHBoxLayout, Style):
 
         self.addLayout(combo)
 
+    def _connect_text_entered(self, input_widget, error_widget, pattern: str, error_msg: str):
+        """Connect textChanged to an uppercase function with recursion guard."""
+        def on_text_changed(text):
+            # ---- 1. Title Case formatting ----
+            if text:
+                formatted = text.title()
+            else:
+                formatted = text
+
+            if formatted != text:
+                cursor_pos = input_widget.cursorPosition()
+                input_widget.blockSignals(True)
+                input_widget.setText(formatted)
+                input_widget.setCursorPosition(cursor_pos)
+                input_widget.blockSignals(False)
+
+            # ---- 2. Regex validation ----
+            if re.fullmatch(pattern, text.lower()):
+                # Valid or empty → hide error
+                self.set_style_customer_input_widget(input_widget) # Border normal
+                self.set_style_error_widget(error_widget, is_visible=False)
+            else:
+                # Invalid → show error
+                error_widget.setText(error_msg)
+                self.set_style_text_input_error(input_widget) # Border red
+                self.set_style_error_widget(error_widget, is_visible=True)
+
+        input_widget.textChanged.connect(on_text_changed)
+
+
 class VerifyInputWidget(Style):
     """ Verify Input Widget class """
     def verify_input_logic(self, widget_dict: DotDict, data: str):
@@ -276,7 +318,7 @@ class VerifyInputWidget(Style):
             # data field is empty
             error_widget.setText(ErrorMessage.EMPTY_INPUT.value)
             self.set_style_error_widget(error_widget, is_visible=True)
-            self.set_plain_text_edit_error(input_widget)
+            self.set_style_text_input_error(input_widget)
 
         else:
             if re.fullmatch(pattern, data.lower()):
@@ -291,6 +333,6 @@ class VerifyInputWidget(Style):
             else:
                 error_widget.setText(error_msg)
                 self.set_style_error_widget(error_widget, is_visible=True)
-                self.set_plain_text_edit_error(input_widget)
+                self.set_style_text_input_error(input_widget)
 
         return status
