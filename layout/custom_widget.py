@@ -178,11 +178,9 @@ class InputFieldLayout(QVBoxLayout, Style):
         def on_text_changed(text):
             # ---- 1. Title Case formatting ----
             if is_title:
-                if text:
-                    formatted = text.title()
-                else:
-                    formatted = text
-
+                if not text:
+                    return
+                formatted = text.title()
                 if formatted != text:
                     cursor_pos = self.input_widget.cursorPosition()
                     self.input_widget.blockSignals(True)
@@ -278,11 +276,9 @@ class CustomerInputFieldLayout(QHBoxLayout, Style):
         """Connect textChanged to an uppercase function with recursion guard."""
         def on_text_changed(text):
             # ---- 1. Title Case formatting ----
-            if text:
-                formatted = text.title()
-            else:
-                formatted = text
-
+            if not text:
+                return
+            formatted = text.title()
             if formatted != text:
                 cursor_pos = input_widget.cursorPosition()
                 input_widget.blockSignals(True)
