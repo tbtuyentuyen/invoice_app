@@ -11,6 +11,8 @@ from tools.common import CustomerAttribute, RegexPatterns, ErrorMessage
 
 class TopLayout(QVBoxLayout, VerifyInputWidget):
     """ Top Layout class contain customer input field """
+    DUAL_SCALE = 0.25
+    INVIDUAL_SCALE = 0.75
 
     _customer_dict = DotDict({
         CustomerAttribute.NAME: {
@@ -146,3 +148,17 @@ class TopLayout(QVBoxLayout, VerifyInputWidget):
                 if not status:
                     validate_status = False
         return validate_status
+
+    def on_window_resize(self, window_w: int):
+        """ resize event"""
+        for layout in ['customer_name_phone_layout', 'customer_company_layout',
+                       'customer_address_layout', 'customer_tax_payment_layout']:
+            input_layout = getattr(self, layout)
+            if input_layout.right_field:
+                input_layout.left_field.input_widget.setFixedWidth(int(window_w * self.DUAL_SCALE))
+                input_layout.left_field.error_widget.setFixedWidth(int(window_w * self.DUAL_SCALE))
+                input_layout.right_field.input_widget.setFixedWidth(int(window_w * self.DUAL_SCALE))
+                input_layout.right_field.error_widget.setFixedWidth(int(window_w * self.DUAL_SCALE))
+            else:
+                input_layout.left_field.input_widget.setFixedWidth(int(window_w * self.INVIDUAL_SCALE))
+                input_layout.left_field.error_widget.setFixedWidth(int(window_w * self.INVIDUAL_SCALE))
