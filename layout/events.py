@@ -9,6 +9,7 @@ from PyQt5.QtGui import QCloseEvent
 
 from tools.common import InputMode, CustomerAttribute
 from tools.invoice_builder import InvoiceBuilder
+from tools.process_helper import stop_broker
 
 
 class Events():
@@ -148,5 +149,6 @@ class Events():
 
         if close_box.clickedButton() == button_accept:
             event.accept()
+            stop_broker()
         else:
             event.ignore()
