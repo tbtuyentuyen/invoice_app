@@ -14,5 +14,5 @@ class MenuBar(QMenuBar):
         setting_menu.addAction(self.export_path_action)
 
         self.check_db_connection = QAction("Kiểm tra kết nối database", self)
-        self.check_db_connection.triggered.connect(self.parent.check_mongodb_connection)
+        self.check_db_connection.triggered.connect(self.parent.mongodb_client.start)
         setting_menu.addAction(self.check_db_connection)

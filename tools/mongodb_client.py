@@ -2,6 +2,7 @@
 
 
 import os
+import threading
 
 from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
@@ -13,27 +14,12 @@ from tools.utils import load_json, save_json
 CONFIG_PATH = os.environ['CONFIG_PATH']
 
 
-class MongoDBWorker(QObject):
-    """ MongoDB worker"""
-    finished = pyqtSignal(str)
-
-    def __init__(self, mongo_client):
-        super().__init__()
-        self.mongodb_client = mongo_client
-
-    def start_connection(self):
-        """ Start connection function """
-        if self.mongodb_client.check_connection():
-            status = MongoDBStatus.CONNECTED.value
-        else:
-            status = MongoDBStatus.DISCONNECTED.value
-
-        self.finished.emit(status)
-
-
-class MongoDBClient:
+class MongoDBClient(QObject):
     """ Mongo Database Client """
+    finish_signal = pyqtSignal(str)
+
     def __init__(self):
+        super().__init__()
         self.config = load_json(CONFIG_PATH)
         self.client = MongoClient(
             self.config.mongodb_endpoint,
@@ -48,18 +34,23 @@ class MongoDBClient:
 
         os.makedirs(self.config.backup_folder, exist_ok=True)
 
+    def start(self):
+        """ Start MongoDB Client """
+        mongodb_thread = threading.Thread(target=self.check_connection, name="MongoDBThread", daemon=True)
+        mongodb_thread.start()
+
     def check_connection(self):
         """ Check connect to MongoDB """
         try:
             self.client.server_info()
             self.offline_mode = False
-            return True
+            self.finish_signal.emit(MongoDBStatus.CONNECTED.value)
         except ServerSelectionTimeoutError:
             self.offline_mode = True
-            return False
+            self.finish_signal.emit(MongoDBStatus.DISCONNECTED.value)
         except Exception:  # pylint: disable=broad-exception-caught
             self.offline_mode = True
-            return False
+            self.finish_signal.emit(MongoDBStatus.UNKNOWN.value)
 
     def disconnect_client(self):
         """ Disconnect to MongoDB"""
