@@ -16,6 +16,10 @@ from openpyxl.utils import get_column_letter, column_index_from_string
 PX_TO_EMU = 9525
 
 
+def expand_env_vars_in_path(path: str) -> str:
+    """ Expand environment variables in a given path """
+    return os.path.expandvars(path)
+
 def load_json(path: str) -> dict:
     """ Load json data"""
     assert os.path.isfile(path), f"[ERROR] File not found: {path}"

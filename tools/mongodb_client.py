@@ -9,7 +9,7 @@ from pymongo.errors import ServerSelectionTimeoutError
 from PyQt5.QtCore import QObject, pyqtSignal
 
 from tools.common import MongoDBStatus
-from tools.utils import load_json, save_json
+from tools.utils import load_json, save_json, expand_env_vars_in_path
 
 CONFIG_PATH = os.environ['CONFIG_PATH']
 
@@ -32,7 +32,7 @@ class MongoDBClient(QObject):
         self.customer_col = database["customer"]
         self.offline_mode = True
 
-        os.makedirs(self.config.backup_folder, exist_ok=True)
+        os.makedirs(expand_env_vars_in_path(self.config.backup_folder), exist_ok=True)
 
     def start(self):
         """ Start MongoDB Client """
@@ -77,7 +77,7 @@ class MongoDBClient(QObject):
                 collection.insert_one(data_dict)
             return True
         else:
-            save_path = os.path.join(self.config.backup_folder, f"{data_id}.json")
+            save_path = os.path.join(expand_env_vars_in_path(self.config.backup_folder), f"{data_id}.json")
             save_json(data_dict, save_path)
             return save_path
 

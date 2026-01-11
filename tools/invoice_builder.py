@@ -23,7 +23,7 @@ from openpyxl.styles import Alignment, Border, Side, Font, PatternFill
 from openpyxl.utils import get_column_letter, column_index_from_string
 
 from tools.common import TableAttribute, CustomerAttribute
-from tools.utils import load_json, add_image_fit_cell, export_xlsx_to_pdf
+from tools.utils import load_json, add_image_fit_cell, export_xlsx_to_pdf, expand_env_vars_in_path
 
 CONFIG_PATH = os.environ['CONFIG_PATH']
 SHOP_INFO_PATH = os.environ['SHOP_INFO_PATH']
@@ -106,8 +106,8 @@ class InvoiceBuilder():
             self.ws.cell(row=row, column=col).border = Border(bottom=line_style)
 
     def _save_file(self, invoice_id:str):
-        export_path = os.path.join(self.config.export_folder, f"{invoice_id}.xlsx")
-        os.makedirs(self.config.export_folder, exist_ok=True)
+        export_path = os.path.join(expand_env_vars_in_path(self.config.export_folder), f"{invoice_id}.xlsx")
+        os.makedirs(expand_env_vars_in_path(self.config.export_folder), exist_ok=True)
 
         # Save xlsx file
         self.wb.save(export_path)
@@ -401,7 +401,7 @@ class InvoiceBuilder():
         )
         add_image_fit_cell(
             self.ws,
-            os.path.abspath(self.shop_info.sign_img),
+            os.path.abspath(expand_env_vars_in_path(self.shop_info.sign_img)),
             f'{seller_start}{row}',
             f'{seller_end}{row}',
             fit_inside=True)

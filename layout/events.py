@@ -10,6 +10,7 @@ from PyQt5.QtGui import QCloseEvent
 from tools.common import InputMode, CustomerAttribute
 from tools.invoice_builder import InvoiceBuilder
 from tools.process_helper import stop_broker
+from tools.utils import expand_env_vars_in_path
 
 
 class Events():
@@ -123,7 +124,7 @@ class Events():
     def on_set_export_path_clicked(self):
         """ Event clicked on set export path """
         folder_path = QFileDialog.getExistingDirectory(
-            None, "Select Folder", self.parent.config.export_folder
+            None, "Select Folder", expand_env_vars_in_path(self.parent.config.export_folder)
         )
 
         if folder_path:
