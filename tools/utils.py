@@ -2,6 +2,7 @@
 
 import os
 import json
+import pickle
 
 from pydotdict import DotDict
 from PIL import Image as PILImage
@@ -26,6 +27,18 @@ def save_json(data: dict, path: str) -> None:
     """ Save json file """
     with open(path, mode='w', encoding='utf-8') as json_file:
         json.dump(data, json_file, indent=4)
+
+def load_pickle(path: str):
+    """ Load pickle data"""
+    assert os.path.isfile(path), f"[ERROR] File not found: {path}"
+    with open(path, mode='rb') as f:
+        data = pickle.load(f)
+    return data
+
+def save_pickle(data, path: str) -> None:
+    """ Save pickle file """
+    with open(path, mode='wb') as f:
+        pickle.dump(data, f)
 
 def export_xlsx_to_pdf(xlsx_path: str, remove_xlsx:bool = False) -> str:
     """ Export xlsx to pdf file"""

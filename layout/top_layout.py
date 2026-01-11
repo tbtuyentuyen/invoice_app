@@ -3,10 +3,11 @@
 import qtawesome as qta
 
 from pydotdict import DotDict
-from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QFrame, QPushButton, QWidget, QLabel
+from PyQt5.QtCore import QStringListModel, QTimer, Qt
+from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QFrame, QPushButton, QWidget, QLabel, QCompleter
 
 from layout.custom_widget import CustomerInputFieldLayout, VerifyInputWidget
-from tools.common import CustomerAttribute, RegexPatterns, ErrorMessage
+from tools.common import CustomerAttribute, RegexPatterns, ErrorMessage, MongoDBStatus
 
 
 class TopLayout(QVBoxLayout, VerifyInputWidget):
@@ -56,6 +57,7 @@ class TopLayout(QVBoxLayout, VerifyInputWidget):
         self.parent = parent
         self.expand_icon = qta.icon('mdi.expand-all')
         self.collapse_icon = qta.icon('mdi.collapse-all')
+        self.clear_icon = qta.icon('mdi6.broom', color='white')
 
         self.customer_name_phone_layout = CustomerInputFieldLayout(
             self._customer_dict[CustomerAttribute.NAME],
@@ -75,11 +77,22 @@ class TopLayout(QVBoxLayout, VerifyInputWidget):
             self._customer_dict[CustomerAttribute.PAYMENT_OPTIONS]
         )
 
+        self.user_suggestion = {}
+        self.user_model, self.completer = self.create_completer()
+        self.customer_name_phone_layout.left_field.input_widget.setCompleter(self.completer)
+        self.customer_name_phone_layout.right_field.input_widget.setCompleter(self.completer)
+        self.completer.activated.connect(self.fill_fields)
+
         self.toggle = QPushButton(icon=self.collapse_icon)
         self.toggle.setCheckable(True)
         self.toggle.setToolTip("Đóng bảng thông tin người mua")
         self.toggle.toggled.connect(self.on_toggle)
         self.set_style_for_toggle_button(self.toggle)
+
+        self.clear = QPushButton(icon=self.clear_icon)
+        self.clear.setToolTip("Xóa tất cả thông tin người mua")
+        self.clear.clicked.connect(self.clear_all_data_input_field)
+        self.set_style(self.clear)
 
         self.customer_label = QLabel()
         self.set_style(self.customer_label)
@@ -88,6 +101,7 @@ class TopLayout(QVBoxLayout, VerifyInputWidget):
         self.button_layout.addStretch()
         self.button_layout.addWidget(self.customer_label)
         self.button_layout.addStretch()
+        self.button_layout.addWidget(self.clear)
         self.button_layout.addWidget(self.toggle)
 
         self.__init_ui()
@@ -105,6 +119,7 @@ class TopLayout(QVBoxLayout, VerifyInputWidget):
 
         # show/hide the container that holds all customer input layouts
         self.customer_container.setVisible(not checked)
+        self.clear.setVisible(not checked)
 
     def __init_ui(self):
         """ Assemble the UI: put all customer layouts into a single container widget """
@@ -162,3 +177,50 @@ class TopLayout(QVBoxLayout, VerifyInputWidget):
             else:
                 input_layout.left_field.input_widget.setFixedWidth(int(window_w * self.INVIDUAL_SCALE))
                 input_layout.left_field.error_widget.setFixedWidth(int(window_w * self.INVIDUAL_SCALE))
+
+    def create_completer(self) -> tuple[QStringListModel, QCompleter]:
+        """ Create completer for customer name and phone number """
+        model = QStringListModel()
+        completer = QCompleter()
+        completer.setModel(model)
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setFilterMode(Qt.MatchContains)
+        return model, completer
+
+    def load_data_suggestion(self, mongodb_sts: str) -> None:
+        """ Load name and type suggestion """
+        if mongodb_sts == MongoDBStatus.CONNECTED.value:
+            customer_data = self.parent.parent.mongodb_client.get_customer_info()
+            for customer in customer_data:
+                self.user_suggestion[customer['_id']] = customer['data']
+        else:
+            # TODO: load from local cache when in offline mode
+            customer_data = []
+        self.set_data_suggestion()
+
+    def set_data_suggestion(self) -> None:
+        """ Set name and type suggestion """
+        combined_list = [f"{data[CustomerAttribute.NAME.value]} - {phone}"
+                         for phone, data in self.user_suggestion.items()]
+        self.user_model.setStringList(combined_list)
+
+    def fill_fields(self, text):
+        """Fill name and phone fields when selecting from completer"""
+        if " - " in text:
+            _, phone = text.split(" - ", 1)
+            customer_data = self.user_suggestion[phone]
+            QTimer.singleShot(0, lambda: self.customer_name_phone_layout.left_field.input_widget.setText(
+                customer_data[CustomerAttribute.NAME.value]
+            ))
+            QTimer.singleShot(0, lambda: self.customer_name_phone_layout.right_field.input_widget.setText(
+                customer_data[CustomerAttribute.PHONE_NUMBER.value]
+            ))
+            QTimer.singleShot(0, lambda: self.customer_company_layout.left_field.input_widget.setText(
+                customer_data[CustomerAttribute.COMPANY.value]
+            ))
+            QTimer.singleShot(0, lambda: self.customer_address_layout.left_field.input_widget.setText(
+                customer_data[CustomerAttribute.ADDRESS.value]
+            ))
+            QTimer.singleShot(0, lambda: self.customer_tax_payment_layout.left_field.input_widget.setText(
+                customer_data[CustomerAttribute.TAX_NUMBER.value]
+            ))

@@ -16,12 +16,13 @@ class MainWindow(QMainWindow): # pylint:disable=R0903
     def __init__(self):
         super().__init__()
         self.mongodb_client = MongoDBClient()
-        self.mongodb_client.finish_signal.connect(self.__change_status_bar)
 
         self.main_layout = MainLayout(self)
         self.__config_window()
         self.__init_ui()
 
+        self.mongodb_client.finish_signal.connect(self.__change_status_bar)
+        self.mongodb_client.finish_signal.connect(self.main_layout.top_layout.load_data_suggestion)
         self.mongodb_client.start()
 
     def __init_ui(self):

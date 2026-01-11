@@ -25,6 +25,7 @@ class Events():
         status = self.parent.middle_layout.input_layout.validate_all_data(data)
         if status is True:
             self.parent.middle_layout.table_layout.add_row_to_table(data)
+            self.parent.middle_layout.input_layout.update_data_suggestion(data)
             self.parent.middle_layout.input_layout.clear_all_data_input_field()
 
     def on_clear_button_clicked(self):
@@ -86,6 +87,7 @@ class Events():
             # Customer
             customer_id = customer_data[CustomerAttribute.PHONE_NUMBER.value]
             customer_result = mongodb_client.add_document(customer_id, customer_data)
+            self.parent.top_layout.user_suggestion[customer_id] = customer_data
 
             # Invoice
             invoice_id = f'invoice_{datetime.now().strftime("%y%m%d_%H%M%S")}'
@@ -149,6 +151,7 @@ class Events():
 
         if close_box.clickedButton() == button_accept:
             event.accept()
+            self.parent.middle_layout.input_layout.save_data_suggestion()
             stop_broker()
         else:
             event.ignore()

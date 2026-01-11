@@ -1,6 +1,8 @@
 """ Input Layout Module """
 
 
+import os
+
 import qtawesome as qta
 from pydotdict import DotDict
 
@@ -8,13 +10,15 @@ from PyQt5.QtCore import QStringListModel
 from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QLineEdit, QHBoxLayout, QCompleter
 
 from layout.custom_widget import QMoneyLineEdit, InputFieldLayout, VerifyInputWidget
-from tools.utils import clear_format_money
+from tools.utils import clear_format_money, load_pickle, save_pickle
 from tools.common import TableAttribute, RegexPatterns, ErrorMessage, InputMode
 
 
+INVOICE_APP_PATH = os.environ['INVOICE_APP_PATH']
+
 class InputLayout(QVBoxLayout, VerifyInputWidget):
     """ Input layout class """
-
+    RECOMMEND_DATA_PATH = os.path.join(INVOICE_APP_PATH, "data/recommend/product_data.pkl")
     _input_dict = DotDict({
         TableAttribute.NAME: {
             'title': f'{TableAttribute.NAME.value}:',
@@ -56,14 +60,14 @@ class InputLayout(QVBoxLayout, VerifyInputWidget):
 
         self.name_layout = InputFieldLayout(self._input_dict[TableAttribute.NAME])
         self.name_model = self.__create_completer(
-            self.name_layout.input_widget, self.name_suggestion
+            self.name_layout.input_widget
         )
 
         self.quatity_layout = InputFieldLayout(self._input_dict[TableAttribute.QUANTITY])
 
         self.type_layout = InputFieldLayout(self._input_dict[TableAttribute.TYPE])
         self.type_model = self.__create_completer(
-            self.type_layout.input_widget, self.type_suggestion
+            self.type_layout.input_widget
         )
 
         self.price_layout = InputFieldLayout(self._input_dict[TableAttribute.PRICE])
@@ -82,6 +86,8 @@ class InputLayout(QVBoxLayout, VerifyInputWidget):
         self.button_layout.addWidget(self.clear_button)
 
         self.__init_ui()
+        self.load_data_suggestion()
+        self.set_data_suggestion()
 
     def __init_ui(self):
         self.addLayout(self.name_layout)
@@ -91,8 +97,8 @@ class InputLayout(QVBoxLayout, VerifyInputWidget):
         self.addLayout(self.button_layout)
         self.addStretch()
 
-    def __create_completer(self, input_widget: QLineEdit, suggestions: list) -> QStringListModel:
-        model = QStringListModel(suggestions)
+    def __create_completer(self, input_widget: QLineEdit) -> QStringListModel:
+        model = QStringListModel()
         completer = QCompleter()
         completer.setModel(model)
         completer.setCaseSensitivity(0)
@@ -148,3 +154,40 @@ class InputLayout(QVBoxLayout, VerifyInputWidget):
             raise TypeError(f"[ERROR] Invalid input mode, '{mode}'")
 
         self.mode = mode
+
+    def load_data_suggestion(self) -> None:
+        """ Load name and type suggestion """
+        if os.path.isfile(self.RECOMMEND_DATA_PATH):
+            data = load_pickle(self.RECOMMEND_DATA_PATH)
+            self.name_suggestion = data[TableAttribute.NAME]
+            self.type_suggestion = data[TableAttribute.TYPE]
+        else:
+            self.name_suggestion = []
+            self.type_suggestion = []
+
+    def save_data_suggestion(self) -> None:
+        """ Save name and type suggestion """
+        data = {
+            TableAttribute.NAME: self.name_suggestion,
+            TableAttribute.TYPE: self.type_suggestion
+        }
+        os.makedirs(os.path.dirname(self.RECOMMEND_DATA_PATH), exist_ok=True)
+        save_pickle(data, self.RECOMMEND_DATA_PATH)
+
+    def set_data_suggestion(self) -> None:
+        """ Set name and type suggestion """
+        self.name_model.setStringList(self.name_suggestion)
+        self.type_model.setStringList(self.type_suggestion)
+
+    def update_data_suggestion(self, data: dict) -> None:
+        """ Update name and type suggestion """
+        name_str = data[TableAttribute.NAME]
+        type_str = data[TableAttribute.TYPE]
+
+        if name_str and name_str not in self.name_suggestion:
+            self.name_suggestion.append(name_str)
+
+        if type_str and type_str not in self.type_suggestion:
+            self.type_suggestion.append(type_str)
+
+        self.set_data_suggestion()

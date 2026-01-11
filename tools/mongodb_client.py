@@ -97,6 +97,12 @@ class MongoDBClient(QObject):
         if not self.offline_mode:
             self.invoice_col.find({}, {"name": 1, "_id": 0 })
 
+    def get_customer_info(self):
+        """ Get all customer information """
+        if not self.offline_mode:
+            return self.customer_col.find()
+        else:
+            return []
 
 if __name__=="__main__":
     db = MongoDBClient()
