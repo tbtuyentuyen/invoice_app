@@ -9,5 +9,5 @@
 
     "invoice_title": "HÓA ĐƠN BÁN LẺ   Số:",
     "invoice_number": 1,
-    "sign_img": "data/sign.png"
+    "sign_img": "./data/sign.png"
 }

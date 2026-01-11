@@ -401,7 +401,7 @@ class InvoiceBuilder():
         )
         add_image_fit_cell(
             self.ws,
-            self.shop_info.sign_img,
+            os.path.abspath(self.shop_info.sign_img),
             f'{seller_start}{row}',
             f'{seller_end}{row}',
             fit_inside=True)

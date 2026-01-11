@@ -71,7 +71,10 @@ class MongoDBClient(QObject):
         collection = self.invoice_col if isinstance(data, list) else self.customer_col
 
         if not self.offline_mode:
-            collection.insert_one(data_dict)
+            if data_id in collection.distinct("_id"):
+                collection.replace_one({'_id': data_id}, data_dict)
+            else:
+                collection.insert_one(data_dict)
             return True
         else:
             save_path = os.path.join(self.config.backup_folder, f"{data_id}.json")
