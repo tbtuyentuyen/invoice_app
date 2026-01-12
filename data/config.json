@@ -1,6 +1,6 @@
 {
-    "export_folder": "%INVOICE_APP_PATH%/hoa_don",
-    "backup_folder": "%INVOICE_APP_PATH%/hoa_don",
+    "export_folder": "%INVOICE_APP_HOME%/hoa_don",
+    "backup_folder": "%INVOICE_APP_HOME%/hoa_don",
     "mongodb_endpoint": "mongodb://localhost:27017",
     "mongodb_timeout": 3000
 }

@@ -25,8 +25,7 @@ from openpyxl.utils import get_column_letter, column_index_from_string
 from tools.common import TableAttribute, CustomerAttribute
 from tools.utils import load_json, add_image_fit_cell, export_xlsx_to_pdf, expand_env_vars_in_path
 
-CONFIG_PATH = os.environ['CONFIG_PATH']
-SHOP_INFO_PATH = os.environ['SHOP_INFO_PATH']
+CONFIG_DIR = os.environ['CONFIG_DIR']
 
 THIN = Side(style="thin", color="000000")
 MED  = Side(style="medium", color="000000")
@@ -55,8 +54,8 @@ class InvoiceBuilder():
     """ Invoicce Builder Class """
     def __init__(self):
         self.customer_name = None
-        self.config = load_json(CONFIG_PATH)
-        self.shop_info = load_json(SHOP_INFO_PATH)
+        self.config = load_json(os.path.join(CONFIG_DIR, 'config.json'))
+        self.shop_info = load_json(os.path.join(CONFIG_DIR, 'shop_info.json'))
 
         # Create workbook
         self.wb = Workbook()
@@ -425,4 +424,5 @@ class InvoiceBuilder():
         row = self._build_customer_info(start_row=row, customer_data=customer_data)
         row = self._build_invoice(start_row=row, invoice_data=invoice_data)
         row = self._build_confirm(start_row=row)
-        self._save_file(invoice_id)
+        pdf_path = self._save_file(invoice_id)
+        return pdf_path

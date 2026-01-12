@@ -14,11 +14,12 @@ from tools.utils import clear_format_money, load_pickle, save_pickle
 from tools.common import TableAttribute, RegexPatterns, ErrorMessage, InputMode
 
 
-INVOICE_APP_PATH = os.environ['INVOICE_APP_PATH']
+CONFIG_DIR = os.environ['CONFIG_DIR']
+PRODUCT_DATA_PATH = os.path.join(CONFIG_DIR, "recommend/product_data.pkl")
 
 class InputLayout(QVBoxLayout, VerifyInputWidget):
     """ Input layout class """
-    RECOMMEND_DATA_PATH = os.path.join(INVOICE_APP_PATH, "data/recommend/product_data.pkl")
+    
     _input_dict = DotDict({
         TableAttribute.NAME: {
             'title': f'{TableAttribute.NAME.value}:',
@@ -157,8 +158,8 @@ class InputLayout(QVBoxLayout, VerifyInputWidget):
 
     def load_data_suggestion(self) -> None:
         """ Load name and type suggestion """
-        if os.path.isfile(self.RECOMMEND_DATA_PATH):
-            data = load_pickle(self.RECOMMEND_DATA_PATH)
+        if os.path.isfile(PRODUCT_DATA_PATH):
+            data = load_pickle(PRODUCT_DATA_PATH)
             self.name_suggestion = data[TableAttribute.NAME]
             self.type_suggestion = data[TableAttribute.TYPE]
         else:
@@ -171,8 +172,8 @@ class InputLayout(QVBoxLayout, VerifyInputWidget):
             TableAttribute.NAME: self.name_suggestion,
             TableAttribute.TYPE: self.type_suggestion
         }
-        os.makedirs(os.path.dirname(self.RECOMMEND_DATA_PATH), exist_ok=True)
-        save_pickle(data, self.RECOMMEND_DATA_PATH)
+        os.makedirs(os.path.dirname(PRODUCT_DATA_PATH), exist_ok=True)
+        save_pickle(data, PRODUCT_DATA_PATH)
 
     def set_data_suggestion(self) -> None:
         """ Set name and type suggestion """

@@ -1,6 +1,7 @@
 """ Event Module """
 
 
+import os
 from datetime import datetime
 
 import qtawesome as qta
@@ -102,7 +103,7 @@ class Events():
                 print(f"[INFO] Thông tin hóa đơn đã được lưu tại: '{customer_result}' và {invoice_result}'")
 
             try:
-                self.invoice_builder.build(invoice_id, invoice_data, customer_data)
+                pdf_path = self.invoice_builder.build(invoice_id, invoice_data, customer_data)
             except Exception as err: # pylint: disable=broad-exception-caught
                 print(f"[ERROR] Xuất hóa đơn thất bại: {err}")
                 return
@@ -110,7 +111,7 @@ class Events():
             QMessageBox.information(
                 None,
                 "Xuất hóa đơn thành công",
-                f"Hóa đơn được lưu tại:\n'{invoice_id}'."   # TODO: Update invoice path
+                f"Hóa đơn được lưu tại:\n'{os.path.abspath(pdf_path)}'."
             )
             self.parent.middle_layout.table_layout.clean_table()
             self.parent.top_layout.clear_all_data_input_field()

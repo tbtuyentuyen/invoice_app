@@ -11,8 +11,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from tools.common import MongoDBStatus
 from tools.utils import load_json, save_json, expand_env_vars_in_path
 
-CONFIG_PATH = os.environ['CONFIG_PATH']
-
+CONFIG_DIR = os.environ['CONFIG_DIR']
 
 class MongoDBClient(QObject):
     """ Mongo Database Client """
@@ -20,7 +19,7 @@ class MongoDBClient(QObject):
 
     def __init__(self):
         super().__init__()
-        self.config = load_json(CONFIG_PATH)
+        self.config = load_json(os.path.join(CONFIG_DIR, 'config.json'))
         self.client = MongoClient(
             self.config.mongodb_endpoint,
             timeoutMS=self.config.mongodb_timeout,

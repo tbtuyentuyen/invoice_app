@@ -12,14 +12,16 @@ from layout.middle_layout import MiddleLayout
 from tools.utils import load_json, save_json
 
 
-CONFIG_PATH = os.environ['CONFIG_PATH']
+CONFIG_DIR = os.environ['CONFIG_DIR']
 
 class MainLayout(QVBoxLayout, Style): # pylint:disable=R0903
     """ Main layout class """
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
-        self.config = load_json(CONFIG_PATH)
+
+        self.config_path = os.path.join(CONFIG_DIR, 'config.json')
+        self.config = load_json(self.config_path)
 
         self.events = Events(self)
         self.top_layout = TopLayout(self)
@@ -42,4 +44,4 @@ class MainLayout(QVBoxLayout, Style): # pylint:disable=R0903
 
     def save_config(self):
         """ Save config """
-        save_json(self.config, CONFIG_PATH)
+        save_json(self.config, self.config_path)
