@@ -243,7 +243,7 @@ class CustomerInputFieldLayout(QHBoxLayout, Style):
 
     def _build_field(self, info_dict: DotDict) -> dict:
         title_widget = QLabel(info_dict.title)
-        self.set_style_customer_label_widget(title_widget)
+        self.set_style(title_widget)
 
         input_widget = QLineEdit()
         self.set_style_customer_input_widget(input_widget)

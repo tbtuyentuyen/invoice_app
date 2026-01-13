@@ -16,7 +16,7 @@ class Style():
                     padding: 15px 15px;
                     font-size: 18px;
                     font-weight: bold;
-                    font-family: "Consolas";
+                    font-family: 'Segoe UI';
                 }
                 QPushButton:hover {
                     background-color: #78B9B5;
@@ -29,9 +29,9 @@ class Style():
             return """
                 QLabel {
                     color: black;
-                    font-size: 18px;
-                    font-weight: bold;
-                    font-family: "Consolas", "Monaco", monospace;
+                    font-size: 17px;
+                    font-weight: 500;
+                    font-family: 'Segoe UI';
                 }
             """
         elif name == 'QCustomTableWidget':
@@ -58,7 +58,8 @@ class Style():
                     background-color: #4F959D;
                     color: white;
                     border-style: none;
-                    font-family: "Consolas", "Monaco", monospace;
+                    font-family: 'Segoe UI';
+                    font-weight: 500;
                     font-size: 18px;
                     padding: 5px;
                 }
@@ -68,7 +69,7 @@ class Style():
                 QLineEdit {
                     background-color: #EAEFEF;
                     color: #320A6B;
-                    font-family: "Consolas", "Monaco", monospace;
+                    font-family: 'Segoe UI';
                     font-size: 16px;
                     border: 1px solid #5c6370;
                     padding: 7px;
@@ -125,17 +126,6 @@ class Style():
             }
         """)
 
-    def set_style_customer_label_widget(self, obj):
-        """ Set style customer label widget """
-        obj.setStyleSheet("""
-            QLabel {
-                color: black;
-                font-size: 16px;
-                font-weight: 500;
-                font-family: 'Segoe UI';
-            }
-        """)
-
     def set_style_text_input_error(self, obj):
         """ Set plain text edit to red """
         obj.setStyleSheet("""
@@ -166,8 +156,8 @@ class Style():
             QLabel {
                 color: black;
                 font-size: 20px;
-                font-weight: bold;
-                font-family: "Consolas", "Monaco", monospace;
+                font-weight: 600;
+                font-family: 'Segoe UI';
             }
         """)
 

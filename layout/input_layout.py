@@ -6,7 +6,7 @@ import os
 import qtawesome as qta
 from pydotdict import DotDict
 
-from PyQt5.QtCore import QStringListModel
+from PyQt5.QtCore import QStringListModel, Qt, QTimer
 from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QLineEdit, QHBoxLayout, QCompleter
 
 from layout.custom_widget import QMoneyLineEdit, InputFieldLayout, VerifyInputWidget
@@ -56,20 +56,20 @@ class InputLayout(QVBoxLayout, VerifyInputWidget):
         self.parent = parent
         self.mode = InputMode.ADD
 
-        self.name_suggestion = []
-        self.type_suggestion = []
+        self.name_suggestion = None
+        self.type_suggestion = None
 
         self.name_layout = InputFieldLayout(self._input_dict[TableAttribute.NAME])
-        self.name_model = self.__create_completer(
-            self.name_layout.input_widget
-        )
+        self.name_model, self.name_compliter = self.create_completer()
+        self.name_layout.input_widget.setCompleter(self.name_compliter)
+        self.name_compliter.activated.connect(self.fill_fields)
 
         self.quatity_layout = InputFieldLayout(self._input_dict[TableAttribute.QUANTITY])
 
         self.type_layout = InputFieldLayout(self._input_dict[TableAttribute.TYPE])
-        self.type_model = self.__create_completer(
-            self.type_layout.input_widget
-        )
+        self.type_model, type_compliter = self.create_completer()
+        self.type_layout.input_widget.setCompleter(type_compliter)
+        
 
         self.price_layout = InputFieldLayout(self._input_dict[TableAttribute.PRICE])
 
@@ -98,13 +98,14 @@ class InputLayout(QVBoxLayout, VerifyInputWidget):
         self.addLayout(self.button_layout)
         self.addStretch()
 
-    def __create_completer(self, input_widget: QLineEdit) -> QStringListModel:
+    def create_completer(self) -> tuple[QStringListModel, QCompleter]:
+        """ Create completer for customer name and phone number """
         model = QStringListModel()
         completer = QCompleter()
         completer.setModel(model)
-        completer.setCaseSensitivity(0)
-        input_widget.setCompleter(completer)
-        return model
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setFilterMode(Qt.MatchContains)
+        return model, completer
 
     def clear_all_data_input_field(self):
         """ Clear all data in input field """
@@ -177,18 +178,32 @@ class InputLayout(QVBoxLayout, VerifyInputWidget):
 
     def set_data_suggestion(self) -> None:
         """ Set name and type suggestion """
-        self.name_model.setStringList(self.name_suggestion)
+        combined_list = [f"{name_str} - {price_str}"
+                         for name_str, price_str, _ in self.name_suggestion]
+        self.name_model.setStringList(combined_list)
         self.type_model.setStringList(self.type_suggestion)
 
     def update_data_suggestion(self, data: dict) -> None:
         """ Update name and type suggestion """
         name_str = data[TableAttribute.NAME]
         type_str = data[TableAttribute.TYPE]
+        price_str = data[TableAttribute.PRICE]
+        combine_data = (name_str, price_str, type_str)
 
-        if name_str and name_str not in self.name_suggestion:
-            self.name_suggestion.append(name_str)
+        if combine_data not in self.name_suggestion:
+            self.name_suggestion.append(combine_data)
 
         if type_str and type_str not in self.type_suggestion:
             self.type_suggestion.append(type_str)
 
         self.set_data_suggestion()
+
+    def fill_fields(self, text: str) -> None:
+        """ Fill fields when select suggestion """
+        name_part = text.split(" - ")[0]
+        for name_str, price_str, type_str in self.name_suggestion:
+            if name_part == name_str:
+                QTimer.singleShot(0, lambda: self.name_layout.input_widget.setText(name_str))
+                QTimer.singleShot(0, lambda: self.price_layout.input_widget.setText(price_str))
+                QTimer.singleShot(0, lambda: self.type_layout.input_widget.setText(type_str))
+                break
