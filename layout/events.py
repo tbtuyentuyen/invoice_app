@@ -4,14 +4,14 @@
 import os
 from datetime import datetime
 
-import qtawesome as qta
-from PyQt5.QtWidgets import QMessageBox, QFileDialog, QPushButton
+from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtGui import QCloseEvent
 
-from tools.common import InputMode, CustomerAttribute
+from tools.common import InputMode, CustomerAttribute, MessageBoxType
 from tools.invoice_builder import InvoiceBuilder
 from tools.process_helper import stop_broker
 from tools.utils import expand_env_vars_in_path
+from layout.custom_widget import MessageBoxWidget
 
 
 class Events():
@@ -35,14 +35,14 @@ class Events():
         data = self.parent.middle_layout.input_layout.get_data()
         if not any([value for _, value in data.items()]):
             return
-        reply = QMessageBox.question(
-            None,
-            "Xác nhận",
-            "Bạn có muốn hủy thay đổi?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        )
 
-        if reply == QMessageBox.StandardButton.Yes:
+        question_box = MessageBoxWidget(
+            MessageBoxType.QUESTION,
+            "Xác nhận",
+            "Bạn có muốn xóa dữ liệu đang nhập?",
+        )
+        question_box.exec_()
+        if question_box.clickedButton() == question_box.button_accept:
             self.parent.middle_layout.input_layout.clear_all_data_input_field()
             if self.parent.middle_layout.input_layout.mode == InputMode.EDIT:
                 self.parent.middle_layout.table_layout.clean_table_color()
@@ -75,14 +75,14 @@ class Events():
         customer_sts = self.parent.top_layout.validate_all_data(customer_data)
         invoice_data = self.parent.middle_layout.table_layout.get_table_data()
         if invoice_data and customer_sts:
-            reply = QMessageBox.question(
-                None,
+            
+            question_box = MessageBoxWidget(
+                MessageBoxType.QUESTION,
                 "Xác nhận xuất hóa đơn",
-                "Bạn có chắc chắn muốn xuất hóa đơn?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No
+                "Bạn có muốn xuất hóa đơn?",
             )
-            if reply == QMessageBox.No:
+            question_box.exec_()
+            if question_box.clickedButton() == question_box.button_reject:
                 return
             mongodb_client = self.parent.parent.mongodb_client
 
@@ -107,20 +107,22 @@ class Events():
             except Exception as err: # pylint: disable=broad-exception-caught
                 print(f"[ERROR] Xuất hóa đơn thất bại: {err}")
                 return
-
-            QMessageBox.information(
-                None,
+            
+            info_box = MessageBoxWidget(
+                MessageBoxType.INFO,
                 "Xuất hóa đơn thành công",
                 f"Hóa đơn được lưu tại:\n'{os.path.abspath(pdf_path)}'."
             )
+            info_box.exec_()
             self.parent.middle_layout.table_layout.clean_table()
             self.parent.top_layout.clear_all_data_input_field()
         else:
-            QMessageBox.warning(
-                None,
+            warning_box = MessageBoxWidget(
+                MessageBoxType.WARNING,
                 "Xuất hóa đơn thất bại",
                 "Xin điền thông hóa đơn hoặc người mua trước khi xuất hóa đơn!"
             )
+            warning_box.exec_()
 
     def on_set_export_path_clicked(self):
         """ Event clicked on set export path """
@@ -134,24 +136,14 @@ class Events():
 
     def on_close_app_clicked(self, event: QCloseEvent):
         """ Event clicked on close button """
-        button_accept = QPushButton('Có')
-        button_reject = QPushButton('Không')
-        close_box = QMessageBox()
-
-        close_icon = qta.icon('mdi6.close-thick', color='red')
-        question_icon = qta.icon('fa5.question-circle', color='darkblue').pixmap(64, 64)
-        close_box.setIconPixmap(question_icon)
-        close_box.setWindowIcon(close_icon)
-
-        close_box.setWindowTitle("Bạn có muốn đóng ứng dụng?")
-        close_box.setText(
+        close_box = MessageBoxWidget(
+            MessageBoxType.QUESTION,
+            "Xác nhận đóng ứng dụng",
             "Dữ liệu của phiên làm việc hiện tại sẽ bị xóa.\nNhấn 'Có' nếu bạn muốn đóng ứng dụng."
         )
-        close_box.addButton(button_accept, QMessageBox.YesRole)
-        close_box.addButton(button_reject, QMessageBox.NoRole)
         close_box.exec_()
 
-        if close_box.clickedButton() == button_accept:
+        if close_box.clickedButton() == close_box.button_accept:
             event.accept()
             self.parent.middle_layout.input_layout.save_data_suggestion()
             stop_broker()

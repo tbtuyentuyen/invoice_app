@@ -1,7 +1,7 @@
 """ Common Module """
 
 
-from enum import Enum
+from enum import Enum, auto
 
 class RegexPatterns(Enum): # pylint:disable=R0903
     """ Pattern class for regex """
@@ -55,3 +55,10 @@ class CustomerAttribute(Enum):
     PHONE_NUMBER = "Số điện thoại"
     TAX_NUMBER = "Mã số thuế"
     PAYMENT_OPTIONS = "Hình thức thanh toán"
+
+class MessageBoxType(Enum):
+    """ Message Box Type class """
+    INFO = auto()
+    QUESTION = auto()
+    WARNING = auto()
+    ERROR = auto()

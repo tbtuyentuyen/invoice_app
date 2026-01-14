@@ -2,13 +2,49 @@
 
 
 import re
+
+import qtawesome as qta
 from pydotdict import DotDict
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QLineEdit, QTableWidget, QMenu, QVBoxLayout, QHBoxLayout, QLabel
+from PyQt5.QtWidgets import QLineEdit, QTableWidget, QMenu, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QMessageBox
 
 from tools.utils import clear_format_money
-from tools.common import ErrorMessage, TableAttribute
+from tools.common import ErrorMessage, TableAttribute, MessageBoxType
 from layout.styling import Style
+
+
+class MessageBoxWidget(QMessageBox, Style):
+    """ Message Box Widget class """
+    def __init__(
+            self,
+            box_type: str,
+            title: str,
+            message: str
+        ):
+        super().__init__()
+        self.button_reject = None
+        if box_type == MessageBoxType.QUESTION:
+            self.button_accept = QPushButton('Có')
+            self.button_reject = QPushButton('Không')
+            box_icon = qta.icon('fa5.question-circle', color='#325eb6').pixmap(64, 64)
+        elif box_type == MessageBoxType.INFO:
+            self.button_accept = QPushButton('Đồng ý')
+            box_icon = qta.icon('fa6s.circle-info', color='#325eb6').pixmap(64, 64)
+        elif box_type == MessageBoxType.WARNING:
+            self.button_accept = QPushButton('Đồng ý')
+            box_icon = qta.icon('ph.warning-octagon', color='#ffa500').pixmap(64, 64)
+        elif box_type == MessageBoxType.ERROR:
+            self.button_accept = QPushButton('Đồng ý')
+            box_icon = qta.icon('msc.error', color='#cc3300').pixmap(64, 64)
+        else:
+            return
+
+        self.setWindowTitle(title)
+        self.setText(message)
+        self.setIconPixmap(box_icon)
+        self.addButton(self.button_accept, QMessageBox.YesRole)
+        if self.button_reject:
+            self.addButton(self.button_reject, QMessageBox.NoRole)
 
 
 class QMoneyLineEdit(QLineEdit):
