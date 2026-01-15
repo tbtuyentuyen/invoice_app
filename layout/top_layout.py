@@ -91,7 +91,6 @@ class TopLayout(QVBoxLayout, VerifyInputWidget):
 
         self.clear = QPushButton(icon=self.clear_icon)
         self.clear.setToolTip("Xóa tất cả thông tin người mua")
-        self.clear.clicked.connect(self.clear_all_data_input_field)
         self.set_style(self.clear)
 
         self.customer_label = QLabel()
@@ -143,6 +142,8 @@ class TopLayout(QVBoxLayout, VerifyInputWidget):
         """ Clear all data in input field """
         for item in self._customer_dict.values():
             item.input_widget.clear()
+            self.set_style_error_widget(item.error_widget, is_visible=False)
+            self.set_style_customer_input_widget(item.input_widget)
 
     def get_data(self):
         """ Get all data from input fields """

@@ -37,6 +37,7 @@ class MainLayout(QVBoxLayout, Style): # pylint:disable=R0903
         self.addLayout(self.bottom_layout)
 
     def __connect_signals(self):
+        self.top_layout.clear.clicked.connect(self.events.on_clear_button_top_layout_clicked)
         self.middle_layout.input_layout.add_button.clicked.connect(self.events.on_add_button_clicked)
         self.middle_layout.input_layout.clear_button.clicked.connect(self.events.on_clear_button_clicked)
         self.middle_layout.table_layout.table_widget.doubleClicked.connect(self.events.on_table_clicked)

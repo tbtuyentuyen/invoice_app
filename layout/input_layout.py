@@ -9,6 +9,7 @@ from pydotdict import DotDict
 from PyQt5.QtCore import QStringListModel, Qt, QTimer
 from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QLineEdit, QHBoxLayout, QCompleter
 
+from layout.styling import Style
 from layout.custom_widget import QMoneyLineEdit, InputFieldLayout, VerifyInputWidget
 from tools.utils import clear_format_money, load_pickle, save_pickle
 from tools.common import TableAttribute, RegexPatterns, ErrorMessage, InputMode
@@ -17,7 +18,7 @@ from tools.common import TableAttribute, RegexPatterns, ErrorMessage, InputMode
 CONFIG_DIR = os.environ['CONFIG_DIR']
 PRODUCT_DATA_PATH = os.path.join(CONFIG_DIR, "recommend/product_data.pkl")
 
-class InputLayout(QVBoxLayout, VerifyInputWidget):
+class InputLayout(QVBoxLayout, VerifyInputWidget, Style):
     """ Input layout class """
     
     _input_dict = DotDict({
@@ -111,6 +112,8 @@ class InputLayout(QVBoxLayout, VerifyInputWidget):
         """ Clear all data in input field """
         for item in self._input_dict.values():
             item.input_widget.clear()
+            self.set_style_error_widget(item.error_widget, is_visible=False)
+            self.set_style(item.input_widget)
 
     def get_data(self):
         """ Get all data from input fields """

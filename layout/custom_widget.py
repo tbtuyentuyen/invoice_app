@@ -227,7 +227,7 @@ class InputFieldLayout(QVBoxLayout, Style):
             # ---- 2. Regex validation ----
             if widget_cls == QMoneyLineEdit:
                 text = clear_format_money(text)
-            if re.fullmatch(pattern, text.lower()):
+            if re.fullmatch(pattern, text.lower()) or not text:
                 # Valid or empty → hide error
                 self.set_style(self.input_widget) # Border normal
                 self.set_style_error_widget(self.error_widget, is_visible=False)
@@ -323,7 +323,7 @@ class CustomerInputFieldLayout(QHBoxLayout, Style):
                 input_widget.blockSignals(False)
 
             # ---- 2. Regex validation ----
-            if re.fullmatch(pattern, text.lower()):
+            if re.fullmatch(pattern, text.lower()) or not text:
                 # Valid or empty → hide error
                 self.set_style_customer_input_widget(input_widget) # Border normal
                 self.set_style_error_widget(error_widget, is_visible=False)

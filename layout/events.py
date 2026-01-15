@@ -21,6 +21,23 @@ class Events():
         self.edit_row = None
         self.invoice_builder = InvoiceBuilder()
 
+    def on_clear_button_top_layout_clicked(self):
+        """ Event press clear button on top layout """
+        data = self.parent.top_layout.get_data()
+        if not any([value for _, value in data.items()]):
+            return
+
+        question_box = MessageBoxWidget(
+            MessageBoxType.QUESTION,
+            "Xác nhận",
+            "Bạn có muốn xóa dữ liệu đang nhập?",
+        )
+        question_box.exec_()
+        if question_box.clickedButton() == question_box.button_accept:
+            self.parent.top_layout.clear_all_data_input_field()
+        else:
+            return
+
     def on_add_button_clicked(self):
         """ Event press add button """
         data = self.parent.middle_layout.input_layout.get_data()
