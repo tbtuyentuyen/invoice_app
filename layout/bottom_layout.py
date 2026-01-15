@@ -15,6 +15,7 @@ class BottomLayout(QHBoxLayout, Style):
 
         save_icon = qta.icon('fa5s.file-export', color='white')
         self.export_button = QPushButton(text='Xuất hóa đơn', icon=save_icon)
+        self.export_button.setObjectName('common_button')
         self.set_style(self.export_button)
 
         self.__init_ui()

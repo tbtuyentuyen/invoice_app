@@ -1,15 +1,12 @@
 """ Styling Module """
 
 
-from PyQt5.QtWidgets import QWidget
-
-
 class Style():
     """ Style class """
     def __get_style(self, name):
         if name == 'QPushButton': # pylint: disable=R1705
             return """
-                QPushButton {
+                QPushButton#common_button {
                     background-color: #0F828C; /* Green */
                     color: white;
                     border-radius: 5px;
@@ -18,20 +15,42 @@ class Style():
                     font-weight: bold;
                     font-family: 'Segoe UI';
                 }
-                QPushButton:hover {
+                QPushButton#common_button:hover {
                     background-color: #78B9B5;
                 }
-                QPushButton:pressed {
+                QPushButton#common_button:pressed {
                     background-color: #065084;
+                }
+                QPushButton#expand_toggle {
+                    border: none;
+                    padding: 6px;
+                }
+                QPushButton#expand_toggle:checked {
+                    border: none;
                 }
             """
         elif name == 'QLabel':
             return """
-                QLabel {
+                QLabel#normal_label {
                     color: black;
                     font-size: 17px;
                     font-weight: 500;
                     font-family: 'Segoe UI';
+                }
+                QLabel#title_label {
+                    color: black;
+                    font-size: 20px;
+                    font-weight: 600;
+                    font-family: 'Segoe UI';
+                }
+                QLabel#visible_error_label {
+                    color: #dc3545;
+                    font-size: 13px;
+                }
+                
+                QLabel#invisible_error_label {
+                    color: transparent;
+                    font-size: 13px;
                 }
             """
         elif name == 'QCustomTableWidget':
@@ -75,8 +94,21 @@ class Style():
                     padding: 7px;
                 }
                 QLineEdit::selection {
-                    background-color: #61afef; /* Selection background */
-                    color: #ffffff; /* Selection text color */
+                    background-color: #61afef;
+                    color: #ffffff;
+                }
+                
+                QLineEdit#customer_input {
+                    border: none;
+                    border-bottom: 1px solid #aaa;
+                }
+                
+                QLineEdit#total_input {
+                    font-weight: bold;
+                    font-size: 20px;
+                }
+                QLineEdit#error_input {
+                    border: 1px solid #dc3545;
                 }
             """
         elif name == "QFrame":
@@ -94,81 +126,3 @@ class Style():
         obj_name = obj.__class__.__name__
         style = self.__get_style(obj_name)
         obj.setStyleSheet(style)
-
-    def set_style_error_widget(self, widget: QWidget, is_visible:bool):
-        """ Set style error widget """
-        if is_visible:
-            widget.setStyleSheet("""
-                color: #dc3545;
-                font-size: 13px;
-            """)
-        else:
-            widget.setStyleSheet("""
-                color: transparent;
-                font-size: 13px;
-            """)
-
-    def set_style_customer_input_widget(self, obj):
-        """ Set style customer input widget """
-        obj.setStyleSheet("""
-            QLineEdit {
-                background-color: #EAEFEF;
-                color: #320A6B;
-                font-family: "Consolas", "Monaco", monospace;
-                font-size: 16px;
-                border: none;
-                border-bottom: 1px solid #aaa;
-                padding: 7px;
-            }
-            QLineEdit::selection {
-                background-color: #61afef; /* Selection background */
-                color: #ffffff; /* Selection text color */
-            }
-        """)
-
-    def set_style_text_input_error(self, obj):
-        """ Set plain text edit to red """
-        obj.setStyleSheet("""
-            QLineEdit {
-                background-color: #EAEFEF;
-                color: #320A6B;
-                font-family: "Consolas", "Monaco", monospace;
-                font-size: 16px;
-                border: 1px solid #dc3545;
-                padding: 7px;
-            }
-        """)
-
-    def set_style_total_price(self, obj_label, obj_edit):
-        """ Set style error widget """
-        obj_edit.setStyleSheet("""
-            QLineEdit {
-                background-color: #EAEFEF;
-                color: #320A6B;
-                font-family: "Consolas", "Monaco", monospace;
-                font-weight: bold;
-                font-size: 20px;
-                border: 1px solid #5c6370;
-                padding: 7px;
-            }
-        """)
-        obj_label.setStyleSheet("""
-            QLabel {
-                color: black;
-                font-size: 20px;
-                font-weight: 600;
-                font-family: 'Segoe UI';
-            }
-        """)
-
-    def set_style_for_toggle_button(self, obj_btn):
-        """ Set style for toggle"""
-        obj_btn.setStyleSheet("""
-            QPushButton {
-                border: none;
-                padding: 6px;
-            }
-            QPushButton:checked {
-                border: none;
-            }
-        """)

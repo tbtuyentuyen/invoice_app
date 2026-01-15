@@ -173,6 +173,7 @@ class InputFieldLayout(QVBoxLayout, Style):
         error_w, error_h = 360, 30
 
         self.title_widget = QLabel(input_dict.title)
+        self.title_widget.setObjectName('normal_label')
         self.title_widget.setFixedSize(label_w, label_h)
         self.set_style(self.title_widget)
 
@@ -187,8 +188,9 @@ class InputFieldLayout(QVBoxLayout, Style):
         )
 
         self.error_widget = QLabel()
+        self.error_widget.setObjectName('invisible_error_label')
         self.error_widget.setFixedSize(error_w, error_h)
-        self.set_style_error_widget(self.error_widget, is_visible=False)
+        self.set_style(self.error_widget)
 
         self.__init_ui()
 
@@ -229,13 +231,17 @@ class InputFieldLayout(QVBoxLayout, Style):
                 text = clear_format_money(text)
             if re.fullmatch(pattern, text.lower()) or not text:
                 # Valid or empty → hide error
-                self.set_style(self.input_widget) # Border normal
-                self.set_style_error_widget(self.error_widget, is_visible=False)
+                self.input_widget.setObjectName('')
+                self.error_widget.setObjectName('invisible_error_label')
+                self.set_style(self.error_widget)
+                self.set_style(self.input_widget)
             else:
                 # Invalid → show error
                 self.error_widget.setText(error_msg)
-                self.set_style_text_input_error(self.input_widget) # Border red
-                self.set_style_error_widget(self.error_widget, is_visible=True)
+                self.input_widget.setObjectName('error_input')
+                self.error_widget.setObjectName('visible_error_label')
+                self.set_style(self.input_widget)
+                self.set_style(self.error_widget)
 
         self.input_widget.textChanged.connect(on_text_changed)
 
@@ -279,13 +285,16 @@ class CustomerInputFieldLayout(QHBoxLayout, Style):
 
     def _build_field(self, info_dict: DotDict) -> dict:
         title_widget = QLabel(info_dict.title)
+        title_widget.setObjectName('normal_label')
         self.set_style(title_widget)
 
         input_widget = QLineEdit()
-        self.set_style_customer_input_widget(input_widget)
+        input_widget.setObjectName('customer_input')
+        self.set_style(input_widget)
 
         error_widget = QLabel()
-        self.set_style_error_widget(error_widget, is_visible=False)
+        error_widget.setObjectName('invisible_error_label')
+        self.set_style(error_widget)
 
         return DotDict({
             'title_widget': title_widget,
@@ -325,13 +334,17 @@ class CustomerInputFieldLayout(QHBoxLayout, Style):
             # ---- 2. Regex validation ----
             if re.fullmatch(pattern, text.lower()) or not text:
                 # Valid or empty → hide error
-                self.set_style_customer_input_widget(input_widget) # Border normal
-                self.set_style_error_widget(error_widget, is_visible=False)
+                input_widget.setObjectName('customer_input')
+                error_widget.setObjectName('invisible_error_label')
+                self.set_style(input_widget)
+                self.set_style(error_widget)
             else:
                 # Invalid → show error
                 error_widget.setText(error_msg)
-                self.set_style_text_input_error(input_widget) # Border red
-                self.set_style_error_widget(error_widget, is_visible=True)
+                input_widget.setObjectName('error_input')
+                error_widget.setObjectName('visible_error_label')
+                self.set_style(input_widget)
+                self.set_style(error_widget)
 
         input_widget.textChanged.connect(on_text_changed)
 
@@ -349,8 +362,10 @@ class VerifyInputWidget(Style):
         if not data:
             # data field is empty
             error_widget.setText(ErrorMessage.EMPTY_INPUT.value)
-            self.set_style_error_widget(error_widget, is_visible=True)
-            self.set_style_text_input_error(input_widget)
+            input_widget.setObjectName('error_input')
+            error_widget.setObjectName('visible_error_label')
+            self.set_style(input_widget)
+            self.set_style(error_widget)
 
         else:
             if re.fullmatch(pattern, data.lower()):
@@ -358,13 +373,17 @@ class VerifyInputWidget(Style):
                 if widget_dict.title.replace(':', '') in TableAttribute.list():
                     self.set_style(input_widget)
                 else:
-                    self.set_style_customer_input_widget(input_widget)
-                self.set_style_error_widget(error_widget, is_visible=False)
+                    input_widget.setObjectName('customer_input')
+                    self.set_style(input_widget)
+                error_widget.setObjectName('invisible_error_label')
+                self.set_style(error_widget)
                 status = True
 
             else:
                 error_widget.setText(error_msg)
-                self.set_style_error_widget(error_widget, is_visible=True)
-                self.set_style_text_input_error(input_widget)
+                input_widget.setObjectName('error_input')
+                error_widget.setObjectName('visible_error_label')
+                self.set_style(error_widget)
+                self.set_style(input_widget)
 
         return status

@@ -76,10 +76,12 @@ class InputLayout(QVBoxLayout, VerifyInputWidget, Style):
 
         add_icon = qta.icon('fa5s.plus-circle', color='white')
         self.add_button = QPushButton(text='Thêm', icon=add_icon)
+        self.add_button.setObjectName('common_button')
         self.set_style(self.add_button)
 
         clear_icon = qta.icon('fa5s.eraser', color='white')
         self.clear_button = QPushButton(text='Xóa', icon=clear_icon)
+        self.clear_button.setObjectName('common_button')
         self.set_style(self.clear_button)
 
         self.button_layout = QHBoxLayout()
@@ -112,7 +114,8 @@ class InputLayout(QVBoxLayout, VerifyInputWidget, Style):
         """ Clear all data in input field """
         for item in self._input_dict.values():
             item.input_widget.clear()
-            self.set_style_error_widget(item.error_widget, is_visible=False)
+            item.error_widget.setObjectName('invisible_error_label')
+            self.set_style(item.error_widget)
             self.set_style(item.input_widget)
 
     def get_data(self):

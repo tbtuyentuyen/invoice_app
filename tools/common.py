@@ -17,7 +17,7 @@ class ErrorMessage(Enum):
     """ Generic error messages for validation """
     ONLY_NUMBER = "Trường này chỉ được chứa số."
     ONLY_LETTER = "Trường này chỉ được chứa chữ."
-    ONLY_LETTER_AND_NUMBER = "Trường này chỉ được chứa chữ và số)."
+    ONLY_LETTER_AND_NUMBER = "Trường này chỉ được chứa chữ và số."
     INVALID_SPECIAL_CHAR = "Không được chứa ký tự đặc biệt không hợp lệ."
     EMPTY_INPUT = "Vui lòng nhập thông tin vào trường bên trên."
     INVALID_PHONE = "Số điện thoại không hợp lệ"

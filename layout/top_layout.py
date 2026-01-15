@@ -84,16 +84,19 @@ class TopLayout(QVBoxLayout, VerifyInputWidget):
         self.completer.activated.connect(self.fill_fields)
 
         self.toggle = QPushButton(icon=self.collapse_icon)
+        self.toggle.setObjectName('expand_toggle')
         self.toggle.setCheckable(True)
         self.toggle.setToolTip("Đóng bảng thông tin người mua")
         self.toggle.toggled.connect(self.on_toggle)
-        self.set_style_for_toggle_button(self.toggle)
+        self.set_style(self.toggle)
 
         self.clear = QPushButton(icon=self.clear_icon)
         self.clear.setToolTip("Xóa tất cả thông tin người mua")
+        self.clear.setObjectName('common_button')
         self.set_style(self.clear)
 
         self.customer_label = QLabel()
+        self.customer_label.setObjectName('title_label')
         self.set_style(self.customer_label)
 
         self.button_layout = QHBoxLayout()
@@ -142,8 +145,10 @@ class TopLayout(QVBoxLayout, VerifyInputWidget):
         """ Clear all data in input field """
         for item in self._customer_dict.values():
             item.input_widget.clear()
-            self.set_style_error_widget(item.error_widget, is_visible=False)
-            self.set_style_customer_input_widget(item.input_widget)
+            item.input_widget.setObjectName('customer_input')
+            item.error_widget.setObjectName('invisible_error_label')
+            self.set_style(item.error_widget)
+            self.set_style(item.input_widget)
 
     def get_data(self):
         """ Get all data from input fields """

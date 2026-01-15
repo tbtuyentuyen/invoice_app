@@ -31,11 +31,14 @@ class TableLayout(QVBoxLayout, Style):
 
         self.total_layout = QHBoxLayout()
         self.total_label = QLabel("Tổng tiền:")
+        self.total_label.setObjectName('title_label')
         self.total_price = QLineEdit()
+        self.total_price.setObjectName('total_input')
         self.total_layout.addStretch()
         self.total_layout.addWidget(self.total_label)
         self.total_layout.addWidget(self.total_price)
-        self.set_style_total_price(self.total_label, self.total_price)
+        self.set_style(self.total_label)
+        self.set_style(self.total_price)
 
         self.__config_table_widget()
         self.__init_ui()
