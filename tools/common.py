@@ -37,8 +37,8 @@ class TableAttribute(Enum): # pylint:disable=R0903
 
 class InputMode(Enum):
     """ Input Mode class """
-    ADD = "Add"
-    EDIT = "Edit"
+    ADD = auto()
+    EDIT = auto()
 
 class MongoDBStatus(Enum):
     """ MongoDB Status class """
@@ -62,3 +62,9 @@ class MessageBoxType(Enum):
     QUESTION = auto()
     WARNING = auto()
     ERROR = auto()
+
+class DBCollection(Enum):
+    """ Database Collection class """
+    INVOICE = auto()
+    CUSTOMER = auto()
+    PRODUCT = auto()

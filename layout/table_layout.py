@@ -33,6 +33,7 @@ class TableLayout(QVBoxLayout, Style):
         self.total_label = QLabel("Tổng tiền:")
         self.total_label.setObjectName('title_label')
         self.total_price = QLineEdit()
+        self.total_price.setReadOnly(True)
         self.total_price.setObjectName('total_input')
         self.total_layout.addStretch()
         self.total_layout.addWidget(self.total_label)

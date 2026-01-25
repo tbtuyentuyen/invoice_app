@@ -8,7 +8,7 @@ from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 from PyQt5.QtCore import QObject, pyqtSignal
 
-from tools.common import MongoDBStatus
+from tools.common import MongoDBStatus, DBCollection
 from tools.utils import load_json, save_json, expand_env_vars_in_path
 
 CONFIG_DIR = os.environ['CONFIG_DIR']
@@ -27,8 +27,11 @@ class MongoDBClient(QObject):
             connectTimeoutMS=self.config.mongodb_timeout
         )
         database = self.client["invoice_app"]
-        self.invoice_col = database["invoices"]
-        self.customer_col = database["customer"]
+        self.collections = {
+            DBCollection.INVOICE: database[DBCollection.INVOICE.name.lower()],
+            DBCollection.CUSTOMER: database[DBCollection.CUSTOMER.name.lower()],
+            DBCollection.PRODUCT: database[DBCollection.PRODUCT.name.lower()]
+        }
         self.offline_mode = True
 
         os.makedirs(expand_env_vars_in_path(self.config.backup_folder), exist_ok=True)
@@ -56,53 +59,32 @@ class MongoDBClient(QObject):
         if not self.offline_mode:
             self.client.close()
 
-    def get_id_from_collection(self, data) -> str:
-        """ Get id of specific collection """
-        collection = self.invoice_col if isinstance(data, list) else self.customer_col
-        if not self.offline_mode:
-            doc = collection.find_one(data)
-            if doc:
-                return str(doc["_id"])
-
-    def add_document(self, data_id: str, data) -> bool|str:
+    def add_document(
+            self,
+            data: dict,
+            collection_type: DBCollection
+        ) -> bool|str:
         """ Insert one document to specific collection """
-        data_dict = {'_id': data_id, 'data': data}
-        collection = self.invoice_col if isinstance(data, list) else self.customer_col
+        collection = self.collections[collection_type]
+        data_id = data.get("_id", None)
+        if not data_id:
+            return False
 
         if not self.offline_mode:
             if data_id in collection.distinct("_id"):
-                collection.replace_one({'_id': data_id}, data_dict)
+                collection.replace_one({'_id': data_id}, data)
             else:
-                collection.insert_one(data_dict)
+                collection.insert_one(data)
             return True
         else:
             save_path = os.path.join(expand_env_vars_in_path(self.config.backup_folder), f"{data_id}.json")
-            save_json(data_dict, save_path)
+            save_json(data, save_path)
             return save_path
-
-    def delete_document(self, data) -> None:
-        """ Delete one document out of collection """
-        collection = self.invoice_col if isinstance(data, list) else self.customer_col
-        if not self.offline_mode:
-            collection.delete_one(data)
-
-    def modify_document(self, data_id: str, new_data, collection) -> None:
-        """ Modify invoice infomation """
-        if not self.offline_mode:
-            collection.update_one(
-                {"_id": data_id},
-                {'$set': new_data}
-            )
-
-    def query_invoice_name(self):
-        """ Query invoice by name """
-        if not self.offline_mode:
-            self.invoice_col.find({}, {"name": 1, "_id": 0 })
 
     def get_customer_info(self):
         """ Get all customer information """
         if not self.offline_mode:
-            return self.customer_col.find()
+            return self.collections[DBCollection.CUSTOMER].find()
         else:
             return []
 

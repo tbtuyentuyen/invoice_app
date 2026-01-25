@@ -7,7 +7,7 @@ from datetime import datetime
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtGui import QCloseEvent
 
-from tools.common import InputMode, CustomerAttribute, MessageBoxType
+from tools.common import InputMode, CustomerAttribute, MessageBoxType, DBCollection
 from tools.invoice_builder import InvoiceBuilder
 from tools.process_helper import stop_broker
 from tools.utils import expand_env_vars_in_path
@@ -105,14 +105,22 @@ class Events():
 
             # Customer
             customer_id = customer_data[CustomerAttribute.PHONE_NUMBER.value]
-            customer_result = mongodb_client.add_document(customer_id, customer_data)
+            customer = {
+                "_id": customer_id,
+                "data": customer_data
+            }
+            customer_result = mongodb_client.add_document(customer, DBCollection.CUSTOMER)
             self.parent.top_layout.user_suggestion[customer_id] = customer_data
 
             # Invoice
             invoice_id = f'invoice_{datetime.now().strftime("%y%m%d_%H%M%S")}'
-            invoice_result = mongodb_client.add_document(invoice_id, invoice_data)
-            extra_dict = {"customer_id": customer_id, "updated_at": datetime.now()}
-            mongodb_client.modify_document(invoice_id, extra_dict, mongodb_client.invoice_col)
+            invoice = {
+                "_id": invoice_id,
+                "data": invoice_data,
+                "customer_id": customer_id,
+                "updated_at": datetime.now()
+            }
+            invoice_result = mongodb_client.add_document(invoice, DBCollection.INVOICE)
 
             if isinstance(invoice_result, bool) and isinstance(customer_result, bool):
                 print("[INFO] Thông tin hóa đơn đã được tải lên database.")
