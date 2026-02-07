@@ -193,15 +193,10 @@ class TopLayout(QVBoxLayout, VerifyInputWidget):
         completer.setFilterMode(Qt.MatchContains)
         return model, completer
 
-    def load_data_suggestion(self, mongodb_sts: str) -> None:
+    def load_data_suggestion(self, data: list) -> None:
         """ Load name and type suggestion """
-        if mongodb_sts == MongoDBStatus.CONNECTED.value:
-            customer_data = self.parent.parent.mongodb_client.get_customer_info()
-            for customer in customer_data:
-                self.user_suggestion[customer['_id']] = customer['data']
-        else:
-            # TODO: load from local cache when in offline mode
-            customer_data = []
+        for customer in data:
+            self.user_suggestion[customer['_id']] = customer
         self.set_data_suggestion()
 
     def set_data_suggestion(self) -> None:

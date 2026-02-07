@@ -27,7 +27,7 @@ class MainWindow(QMainWindow): # pylint:disable=R0903
         self.__init_ui()
 
         self.mongodb_client.finish_signal.connect(self.__change_status_bar)
-        self.mongodb_client.finish_signal.connect(self.main_layout.top_layout.load_data_suggestion)
+        self.mongodb_client.finish_signal.connect(self.load_suggesion_data)
         self.mongodb_client.start()
 
     def __init_ui(self):
@@ -72,3 +72,11 @@ class MainWindow(QMainWindow): # pylint:disable=R0903
         """ resize event"""
         self.main_layout.top_layout.on_window_resize(self.width())
         super().resizeEvent(event)
+
+    def load_suggesion_data(self, status: str = None) -> None:   # pylint: disable=unused-argument
+        """ Load suggestion data """
+        customers_data = self.mongodb_client.get_customer_info()
+        self.main_layout.top_layout.load_data_suggestion(customers_data)
+
+        products_data = self.mongodb_client.get_product_info()
+        self.main_layout.middle_layout.input_layout.load_data_suggestion(products_data)

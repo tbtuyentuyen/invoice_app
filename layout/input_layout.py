@@ -1,8 +1,6 @@
 """ Input Layout Module """
 
 
-import os
-
 import qtawesome as qta
 from pydotdict import DotDict
 
@@ -11,12 +9,9 @@ from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QLineEdit, QHBoxLayout, QC
 
 from layout.styling import Style
 from layout.custom_widget import QMoneyLineEdit, InputFieldLayout, VerifyInputWidget
-from tools.utils import clear_format_money, load_pickle, save_pickle
+from tools.utils import clear_format_money
 from tools.common import TableAttribute, RegexPatterns, ErrorMessage, InputMode
 
-
-CONFIG_DIR = os.environ['CONFIG_DIR']
-PRODUCT_DATA_PATH = os.path.join(CONFIG_DIR, "recommend/product_data.pkl")
 
 class InputLayout(QVBoxLayout, VerifyInputWidget, Style):
     """ Input layout class """
@@ -57,8 +52,8 @@ class InputLayout(QVBoxLayout, VerifyInputWidget, Style):
         self.parent = parent
         self.mode = InputMode.ADD
 
-        self.name_suggestion = None
-        self.type_suggestion = None
+        self.name_suggestion = []
+        self.type_suggestion = []
 
         self.name_layout = InputFieldLayout(self._input_dict[TableAttribute.NAME])
         self.name_model, self.name_compliter = self.create_completer()
@@ -70,7 +65,6 @@ class InputLayout(QVBoxLayout, VerifyInputWidget, Style):
         self.type_layout = InputFieldLayout(self._input_dict[TableAttribute.TYPE])
         self.type_model, type_compliter = self.create_completer()
         self.type_layout.input_widget.setCompleter(type_compliter)
-        
 
         self.price_layout = InputFieldLayout(self._input_dict[TableAttribute.PRICE])
 
@@ -90,8 +84,6 @@ class InputLayout(QVBoxLayout, VerifyInputWidget, Style):
         self.button_layout.addWidget(self.clear_button)
 
         self.__init_ui()
-        self.load_data_suggestion()
-        self.set_data_suggestion()
 
     def __init_ui(self):
         self.addLayout(self.name_layout)
@@ -163,24 +155,21 @@ class InputLayout(QVBoxLayout, VerifyInputWidget, Style):
 
         self.mode = mode
 
-    def load_data_suggestion(self) -> None:
+    def load_data_suggestion(self, data: list) -> None:
         """ Load name and type suggestion """
-        if os.path.isfile(PRODUCT_DATA_PATH):
-            data = load_pickle(PRODUCT_DATA_PATH)
-            self.name_suggestion = data[TableAttribute.NAME]
-            self.type_suggestion = data[TableAttribute.TYPE]
-        else:
-            self.name_suggestion = []
-            self.type_suggestion = []
+        for product in data:
+            name_str = product[TableAttribute.NAME.value]
+            type_str = product[TableAttribute.TYPE.value]
+            price_str = product[TableAttribute.PRICE.value]
+            combine_data = (name_str, price_str, type_str)
 
-    def save_data_suggestion(self) -> None:
-        """ Save name and type suggestion """
-        data = {
-            TableAttribute.NAME: self.name_suggestion,
-            TableAttribute.TYPE: self.type_suggestion
-        }
-        os.makedirs(os.path.dirname(PRODUCT_DATA_PATH), exist_ok=True)
-        save_pickle(data, PRODUCT_DATA_PATH)
+            if combine_data not in self.name_suggestion:
+                self.name_suggestion.append(combine_data)
+
+            if type_str and type_str not in self.type_suggestion:
+                self.type_suggestion.append(type_str)
+
+        self.set_data_suggestion()
 
     def set_data_suggestion(self) -> None:
         """ Set name and type suggestion """
@@ -189,27 +178,12 @@ class InputLayout(QVBoxLayout, VerifyInputWidget, Style):
         self.name_model.setStringList(combined_list)
         self.type_model.setStringList(self.type_suggestion)
 
-    def update_data_suggestion(self, data: dict) -> None:
-        """ Update name and type suggestion """
-        name_str = data[TableAttribute.NAME]
-        type_str = data[TableAttribute.TYPE]
-        price_str = data[TableAttribute.PRICE]
-        combine_data = (name_str, price_str, type_str)
-
-        if combine_data not in self.name_suggestion:
-            self.name_suggestion.append(combine_data)
-
-        if type_str and type_str not in self.type_suggestion:
-            self.type_suggestion.append(type_str)
-
-        self.set_data_suggestion()
-
     def fill_fields(self, text: str) -> None:
         """ Fill fields when select suggestion """
         name_part = text.split(" - ")[0]
         for name_str, price_str, type_str in self.name_suggestion:
             if name_part == name_str:
-                QTimer.singleShot(0, lambda: self.name_layout.input_widget.setText(name_str))
-                QTimer.singleShot(0, lambda: self.price_layout.input_widget.setText(price_str))
-                QTimer.singleShot(0, lambda: self.type_layout.input_widget.setText(type_str))
+                QTimer.singleShot(0, lambda: self.name_layout.input_widget.setText(str(name_str)))
+                QTimer.singleShot(0, lambda: self.price_layout.input_widget.setText(str(price_str)))
+                QTimer.singleShot(0, lambda: self.type_layout.input_widget.setText(str(type_str)))
                 break

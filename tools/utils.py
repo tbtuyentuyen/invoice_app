@@ -1,8 +1,10 @@
 """ Utilities Module """
 
 import os
+import re
 import json
-import pickle
+import hashlib
+import unicodedata
 
 from pydotdict import DotDict
 from PIL import Image as PILImage
@@ -31,18 +33,6 @@ def save_json(data: dict, path: str) -> None:
     """ Save json file """
     with open(path, mode='w', encoding='utf-8') as json_file:
         json.dump(data, json_file, indent=4)
-
-def load_pickle(path: str):
-    """ Load pickle data"""
-    assert os.path.isfile(path), f"[ERROR] File not found: {path}"
-    with open(path, mode='rb') as f:
-        data = pickle.load(f)
-    return data
-
-def save_pickle(data, path: str) -> None:
-    """ Save pickle file """
-    with open(path, mode='wb') as f:
-        pickle.dump(data, f)
 
 def export_xlsx_to_pdf(xlsx_path: str, remove_xlsx:bool = False) -> str:
     """ Export xlsx to pdf file"""
@@ -120,3 +110,14 @@ def add_image_fit_cell(ws, path: str, start_cell: str, end_cell: str = None, fit
 def clear_format_money(text: str):
     """ Clear format money """
     return text.replace('.', '').replace(',', '').replace('VNĐ', '').replace(' ', '').strip()
+
+def encode_product_id(name: str, type_: str) -> str:
+    """ Encode product id """
+    text = f"{name}-{type_}"
+    slug = unicodedata.normalize("NFKD", text)
+    slug = slug.encode("ascii", "ignore").decode("ascii")
+    slug = re.sub(r"[^a-zA-Z0-9]+", "-", slug)
+    slug = slug.strip("-").upper()
+
+    hash_ = hashlib.md5(text.encode("utf-8")).hexdigest()[:6].upper()
+    return f"{slug}-{hash_}"

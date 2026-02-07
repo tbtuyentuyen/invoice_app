@@ -81,10 +81,17 @@ class MongoDBClient(QObject):
             save_json(data, save_path)
             return save_path
 
-    def get_customer_info(self):
+    def get_customer_info(self)->list:
         """ Get all customer information """
         if not self.offline_mode:
             return self.collections[DBCollection.CUSTOMER].find()
+        else:
+            return []
+
+    def get_product_info(self)->list:
+        """ Get all product information """
+        if not self.offline_mode:
+            return self.collections[DBCollection.PRODUCT].find()
         else:
             return []
 

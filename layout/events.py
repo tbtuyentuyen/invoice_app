@@ -7,10 +7,10 @@ from datetime import datetime
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtGui import QCloseEvent
 
-from tools.common import InputMode, CustomerAttribute, MessageBoxType, DBCollection
+from tools.common import InputMode, CustomerAttribute, MessageBoxType, DBCollection, TableAttribute
 from tools.invoice_builder import InvoiceBuilder
 from tools.process_helper import stop_broker
-from tools.utils import expand_env_vars_in_path
+from tools.utils import expand_env_vars_in_path, encode_product_id
 from layout.custom_widget import MessageBoxWidget
 
 
@@ -44,7 +44,6 @@ class Events():
         status = self.parent.middle_layout.input_layout.validate_all_data(data)
         if status is True:
             self.parent.middle_layout.table_layout.add_row_to_table(data)
-            self.parent.middle_layout.input_layout.update_data_suggestion(data)
             self.parent.middle_layout.input_layout.clear_all_data_input_field()
 
     def on_clear_button_clicked(self):
@@ -92,7 +91,6 @@ class Events():
         customer_sts = self.parent.top_layout.validate_all_data(customer_data)
         invoice_data = self.parent.middle_layout.table_layout.get_table_data()
         if invoice_data and customer_sts:
-            
             question_box = MessageBoxWidget(
                 MessageBoxType.QUESTION,
                 "Xác nhận xuất hóa đơn",
@@ -105,18 +103,39 @@ class Events():
 
             # Customer
             customer_id = customer_data[CustomerAttribute.PHONE_NUMBER.value]
-            customer = {
-                "_id": customer_id,
-                "data": customer_data
-            }
-            customer_result = mongodb_client.add_document(customer, DBCollection.CUSTOMER)
+            customer_data.update({
+                "_id": customer_id
+            })
+            customer_result = mongodb_client.add_document(customer_data, DBCollection.CUSTOMER)
             self.parent.top_layout.user_suggestion[customer_id] = customer_data
+
+            # Product
+            invoice_list = []
+            for item in invoice_data:
+                product_id = encode_product_id(
+                    item[TableAttribute.NAME.value],
+                    item[TableAttribute.TYPE.value]
+                )
+                product = {
+                    "_id": product_id,
+                    TableAttribute.NAME.value: item[TableAttribute.NAME.value],
+                    TableAttribute.TYPE.value: item[TableAttribute.TYPE.value],
+                    TableAttribute.PRICE.value: item[TableAttribute.PRICE.value],
+                }
+                mongodb_client.add_document(product, DBCollection.PRODUCT)
+                invoice_list.append({
+                    "product_id": product_id,
+                    "quantity": item[TableAttribute.QUANTITY.value],
+                    "sum": item[TableAttribute.SUM.value],
+                })
+
+            self.parent.parent.load_suggesion_data()
 
             # Invoice
             invoice_id = f'invoice_{datetime.now().strftime("%y%m%d_%H%M%S")}'
             invoice = {
                 "_id": invoice_id,
-                "data": invoice_data,
+                "data": invoice_list,
                 "customer_id": customer_id,
                 "updated_at": datetime.now()
             }
@@ -170,7 +189,6 @@ class Events():
 
         if close_box.clickedButton() == close_box.button_accept:
             event.accept()
-            self.parent.middle_layout.input_layout.save_data_suggestion()
             stop_broker()
         else:
             event.ignore()
