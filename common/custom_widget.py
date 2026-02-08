@@ -163,6 +163,68 @@ class QCustomTableWidget(QTableWidget):
             # Clean highlight
             self.parent.clean_table_color()
 
+class VerifyInputWidget(Style):
+    """ Verify Input Widget class """
+    def verify_input_logic(self, widget_dict: DotDict, data: str):
+        """
+        Validates the input data and updates the UI state of associated widgets.
+
+        This method checks the provided data against a specific regex pattern. 
+        It dynamically updates the stylesheet object names (UI state) for both 
+        the input widget and the error label based on whether the validation 
+        passes, fails, or receives empty input.
+
+        Args:
+            widget_dict (DotDict): A dictionary-like object containing:
+                - input_widget: The UI element for data entry.
+                - error_widget: The UI label for displaying error messages.
+                - pattern: A dynamic object containing the regex string in its `.value` attribute.
+                - error_msg: A dynamic object containing the error string in its `.value` attribute.
+                - title: The label text used to determine the specific input styling.
+            data (str): The raw string input to be validated.
+
+        Returns:
+            bool: True if the input matches the pattern and is not empty; False otherwise.
+
+        Note:
+            This method relies on `self.set_style()` to apply CSS-like changes 
+            immediately after updating the `objectName` of the widgets.
+        """
+        status = False
+        input_widget = widget_dict.input_widget
+        error_widget = widget_dict.error_widget
+        pattern = widget_dict.pattern.value
+        error_msg = widget_dict.error_msg.value
+
+        if not data:
+            # data field is empty
+            error_widget.setText(ErrorMessage.EMPTY_INPUT.value)
+            input_widget.setObjectName('error_input')
+            error_widget.setObjectName('visible_error_label')
+            self.set_style(input_widget)
+            self.set_style(error_widget)
+
+        else:
+            if re.fullmatch(pattern, data.lower()):
+                # data is valid
+                if widget_dict.title.replace(':', '') in TableAttribute.list():
+                    self.set_style(input_widget)
+                else:
+                    input_widget.setObjectName('customer_input')
+                    self.set_style(input_widget)
+                error_widget.setObjectName('invisible_error_label')
+                self.set_style(error_widget)
+                status = True
+
+            else:
+                error_widget.setText(error_msg)
+                input_widget.setObjectName('error_input')
+                error_widget.setObjectName('visible_error_label')
+                self.set_style(error_widget)
+                self.set_style(input_widget)
+
+        return status
+
 
 class InputFieldLayout(QVBoxLayout, Style):
     """ Input Field Layout class """
@@ -348,42 +410,3 @@ class CustomerInputFieldLayout(QHBoxLayout, Style):
 
         input_widget.textChanged.connect(on_text_changed)
 
-
-class VerifyInputWidget(Style):
-    """ Verify Input Widget class """
-    def verify_input_logic(self, widget_dict: DotDict, data: str):
-        """ Verify input logic function """
-        status = False
-        input_widget = widget_dict.input_widget
-        error_widget = widget_dict.error_widget
-        pattern = widget_dict.pattern.value
-        error_msg = widget_dict.error_msg.value
-
-        if not data:
-            # data field is empty
-            error_widget.setText(ErrorMessage.EMPTY_INPUT.value)
-            input_widget.setObjectName('error_input')
-            error_widget.setObjectName('visible_error_label')
-            self.set_style(input_widget)
-            self.set_style(error_widget)
-
-        else:
-            if re.fullmatch(pattern, data.lower()):
-                # data is valid
-                if widget_dict.title.replace(':', '') in TableAttribute.list():
-                    self.set_style(input_widget)
-                else:
-                    input_widget.setObjectName('customer_input')
-                    self.set_style(input_widget)
-                error_widget.setObjectName('invisible_error_label')
-                self.set_style(error_widget)
-                status = True
-
-            else:
-                error_widget.setText(error_msg)
-                input_widget.setObjectName('error_input')
-                error_widget.setObjectName('visible_error_label')
-                self.set_style(error_widget)
-                self.set_style(input_widget)
-
-        return status
