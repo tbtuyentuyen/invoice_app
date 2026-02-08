@@ -1,4 +1,4 @@
-""" Common Module """
+""" Constants used across the application """
 
 
 from enum import Enum, auto

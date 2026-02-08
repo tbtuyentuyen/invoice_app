@@ -22,7 +22,7 @@ from openpyxl.worksheet.page import PageMargins # pylint: disable=ungrouped-impo
 from openpyxl.styles import Alignment, Border, Side, Font, PatternFill
 from openpyxl.utils import get_column_letter, column_index_from_string
 
-from tools.common import TableAttribute, CustomerAttribute
+from common.constants import TableAttribute, CustomerAttribute
 from tools.utils import load_json, add_image_fit_cell, export_xlsx_to_pdf, expand_env_vars_in_path
 
 CONFIG_DIR = os.environ['CONFIG_DIR']

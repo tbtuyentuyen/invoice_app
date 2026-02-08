@@ -7,11 +7,11 @@ from datetime import datetime
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtGui import QCloseEvent
 
-from tools.common import InputMode, CustomerAttribute, MessageBoxType, DBCollection, TableAttribute
+from common.constants import InputMode, CustomerAttribute, MessageBoxType, DBCollection, TableAttribute
 from tools.invoice_builder import InvoiceBuilder
 from tools.process_helper import stop_broker
 from tools.utils import expand_env_vars_in_path, encode_product_id
-from layout.custom_widget import MessageBoxWidget
+from common.custom_widget import MessageBoxWidget
 
 
 class Events():
@@ -21,9 +21,9 @@ class Events():
         self.edit_row = None
         self.invoice_builder = InvoiceBuilder()
 
-    def on_clear_button_top_layout_clicked(self):
+    def on_clear_customer_clicked(self):
         """ Event press clear button on top layout """
-        data = self.parent.top_layout.get_data()
+        data = self.parent.customer_layout.get_data()
         if not any([value for _, value in data.items()]):
             return
 
@@ -34,21 +34,21 @@ class Events():
         )
         question_box.exec_()
         if question_box.clickedButton() == question_box.button_accept:
-            self.parent.top_layout.clear_all_data_input_field()
+            self.parent.customer_layout.clear_all_data_input_field()
         else:
             return
 
-    def on_add_button_clicked(self):
+    def on_add_product_clicked(self):
         """ Event press add button """
-        data = self.parent.middle_layout.input_layout.get_data()
-        status = self.parent.middle_layout.input_layout.validate_all_data(data)
+        data = self.parent.middle_layout.product_layout.get_data()
+        status = self.parent.middle_layout.product_layout.validate_all_data(data)
         if status is True:
             self.parent.middle_layout.table_layout.add_row_to_table(data)
-            self.parent.middle_layout.input_layout.clear_all_data_input_field()
+            self.parent.middle_layout.product_layout.clear_all_data_input_field()
 
-    def on_clear_button_clicked(self):
+    def on_clear_product_clicked(self):
         """ Event press clear button """
-        data = self.parent.middle_layout.input_layout.get_data()
+        data = self.parent.middle_layout.product_layout.get_data()
         if not any([value for _, value in data.items()]):
             return
 
@@ -59,21 +59,21 @@ class Events():
         )
         question_box.exec_()
         if question_box.clickedButton() == question_box.button_accept:
-            self.parent.middle_layout.input_layout.clear_all_data_input_field()
-            if self.parent.middle_layout.input_layout.mode == InputMode.EDIT:
+            self.parent.middle_layout.product_layout.clear_all_data_input_field()
+            if self.parent.middle_layout.product_layout.mode == InputMode.EDIT:
                 self.parent.middle_layout.table_layout.clean_table_color()
-                self.parent.middle_layout.input_layout.set_input_mode(mode=InputMode.ADD)
+                self.parent.middle_layout.product_layout.set_input_mode(mode=InputMode.ADD)
         else:
             return
 
     def on_save_button_clicked(self):
         """ Event press save button """
-        data = self.parent.middle_layout.input_layout.get_data()
-        status = self.parent.middle_layout.input_layout.validate_all_data(data)
+        data = self.parent.middle_layout.product_layout.get_data()
+        status = self.parent.middle_layout.product_layout.validate_all_data(data)
         if status is True:
             self.parent.middle_layout.table_layout.edit_data_by_row(self.edit_row, data)
-            self.parent.middle_layout.input_layout.clear_all_data_input_field()
-            self.parent.middle_layout.input_layout.set_input_mode(mode=InputMode.ADD)
+            self.parent.middle_layout.product_layout.clear_all_data_input_field()
+            self.parent.middle_layout.product_layout.set_input_mode(mode=InputMode.ADD)
             self.parent.middle_layout.table_layout.clean_table_color()
 
     def on_table_clicked(self):
@@ -82,13 +82,13 @@ class Events():
         self.edit_row, edit_col = self.parent.middle_layout.table_layout.get_current_cell()
         self.parent.middle_layout.table_layout.highlight_edit_row(self.edit_row, edit_col)
         data = self.parent.middle_layout.table_layout.get_data_by_row(self.edit_row)
-        self.parent.middle_layout.input_layout.set_data_to_input_field(data)
-        self.parent.middle_layout.input_layout.set_input_mode(mode=InputMode.EDIT)
+        self.parent.middle_layout.product_layout.set_data_to_input_field(data)
+        self.parent.middle_layout.product_layout.set_input_mode(mode=InputMode.EDIT)
 
     def on_export_button_clicked(self):
         """ Event clicked on export button """
-        customer_data = self.parent.top_layout.get_data()
-        customer_sts = self.parent.top_layout.validate_all_data(customer_data)
+        customer_data = self.parent.customer_layout.get_data()
+        customer_sts = self.parent.customer_layout.validate_all_data(customer_data)
         invoice_data = self.parent.middle_layout.table_layout.get_table_data()
         if invoice_data and customer_sts:
             question_box = MessageBoxWidget(
@@ -107,7 +107,7 @@ class Events():
                 "_id": customer_id
             })
             customer_result = mongodb_client.add_document(customer_data, DBCollection.CUSTOMER)
-            self.parent.top_layout.user_suggestion[customer_id] = customer_data
+            self.parent.customer_layout.user_suggestion[customer_id] = customer_data
 
             # Product
             invoice_list = []
@@ -159,7 +159,7 @@ class Events():
             )
             info_box.exec_()
             self.parent.middle_layout.table_layout.clean_table()
-            self.parent.top_layout.clear_all_data_input_field()
+            self.parent.customer_layout.clear_all_data_input_field()
         else:
             warning_box = MessageBoxWidget(
                 MessageBoxType.WARNING,

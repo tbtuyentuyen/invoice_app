@@ -3,8 +3,8 @@
 
 from PyQt5.QtWidgets import QHBoxLayout, QWidget
 
-from layout.table_layout import TableLayout
-from layout.input_layout import InputLayout
+from layout.middle_layout.table_layout import TableLayout
+from layout.middle_layout.product_layout import ProductLayout
 
 
 class MiddleLayout(QHBoxLayout):
@@ -18,8 +18,8 @@ class MiddleLayout(QHBoxLayout):
         self.table_widget.setLayout(self.table_layout)
 
         self.input_widget = QWidget()
-        self.input_layout = InputLayout(self)
-        self.input_widget.setLayout(self.input_layout)
+        self.product_layout = ProductLayout(self)
+        self.input_widget.setLayout(self.product_layout)
         self.input_widget.setFixedWidth(500)
 
         self.__init_ui()

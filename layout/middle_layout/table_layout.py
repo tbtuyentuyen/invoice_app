@@ -6,9 +6,9 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (QVBoxLayout, QHBoxLayout, QLineEdit,
                              QTableWidgetItem, QHeaderView, QAbstractItemView, QLabel)
 
-from layout.styling import Style
-from layout.custom_widget import QCustomTableWidget
-from tools.common import TableAttribute
+from common.styling import Style
+from common.constants import TableAttribute
+from common.custom_widget import QCustomTableWidget
 from tools.utils import clear_format_money
 
 

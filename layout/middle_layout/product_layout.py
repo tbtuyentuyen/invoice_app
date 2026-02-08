@@ -7,15 +7,15 @@ from pydotdict import DotDict
 from PyQt5.QtCore import QStringListModel, Qt, QTimer
 from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QLineEdit, QHBoxLayout, QCompleter
 
-from layout.styling import Style
-from layout.custom_widget import QMoneyLineEdit, InputFieldLayout, VerifyInputWidget
 from tools.utils import clear_format_money
-from tools.common import TableAttribute, RegexPatterns, ErrorMessage, InputMode
+from common.styling import Style
+from common.custom_widget import QMoneyLineEdit, InputFieldLayout, VerifyInputWidget
+from common.constants import TableAttribute, RegexPatterns, ErrorMessage, InputMode
 
 
-class InputLayout(QVBoxLayout, VerifyInputWidget, Style):
+class ProductLayout(QVBoxLayout, VerifyInputWidget, Style):
     """ Input layout class """
-    
+
     _input_dict = DotDict({
         TableAttribute.NAME: {
             'title': f'{TableAttribute.NAME.value}:',

@@ -7,9 +7,9 @@ import qtawesome as qta
 
 from PyQt5.QtWidgets import QMainWindow, QWidget
 
-from layout.menu_bar import MenuBar
+from layout.menu_bar.menu_bar import MenuBar
 from layout.main_layout import MainLayout
-from tools.common import MongoDBStatus
+from common.constants import MongoDBStatus
 from tools.mongodb_client import MongoDBClient
 
 CONFIG_DIR = os.environ['CONFIG_DIR']
@@ -70,13 +70,13 @@ class MainWindow(QMainWindow): # pylint:disable=R0903
 
     def resizeEvent(self, event): # pylint: disable=invalid-name
         """ resize event"""
-        self.main_layout.top_layout.on_window_resize(self.width())
+        self.main_layout.customer_layout.on_window_resize(self.width())
         super().resizeEvent(event)
 
     def load_suggesion_data(self, status: str = None) -> None:   # pylint: disable=unused-argument
         """ Load suggestion data """
         customers_data = self.mongodb_client.get_customer_info()
-        self.main_layout.top_layout.load_data_suggestion(customers_data)
+        self.main_layout.customer_layout.load_data_suggestion(customers_data)
 
         products_data = self.mongodb_client.get_product_info()
-        self.main_layout.middle_layout.input_layout.load_data_suggestion(products_data)
+        self.main_layout.middle_layout.product_layout.load_data_suggestion(products_data)

@@ -6,12 +6,12 @@ from pydotdict import DotDict
 from PyQt5.QtCore import QStringListModel, QTimer, Qt
 from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QFrame, QPushButton, QWidget, QLabel, QCompleter
 
-from layout.custom_widget import CustomerInputFieldLayout, VerifyInputWidget
-from tools.common import CustomerAttribute, RegexPatterns, ErrorMessage, MongoDBStatus
+from common.custom_widget import CustomerInputFieldLayout, VerifyInputWidget
+from common.constants import CustomerAttribute, RegexPatterns, ErrorMessage
 
 
-class TopLayout(QVBoxLayout, VerifyInputWidget):
-    """ Top Layout class contain customer input field """
+class CustomerLayout(QVBoxLayout, VerifyInputWidget):
+    """ Customer Layout class contain customer input field """
     DUAL_SCALE = 0.25
     INVIDUAL_SCALE = 0.75
 
@@ -137,7 +137,7 @@ class TopLayout(QVBoxLayout, VerifyInputWidget):
         self.customer_container_layout.addLayout(self.customer_address_layout)
         self.customer_container_layout.addLayout(self.customer_tax_payment_layout)
 
-        # add the container widget and the button layout to this TopLayout (which is a QVBoxLayout)
+        # add the container widget and the button layout to this CustomerLayout (which is a QVBoxLayout)
         self.addWidget(self.customer_container)
         self.addLayout(self.button_layout)
 
@@ -174,15 +174,15 @@ class TopLayout(QVBoxLayout, VerifyInputWidget):
         """ resize event"""
         for layout in ['customer_name_phone_layout', 'customer_company_layout',
                        'customer_address_layout', 'customer_tax_payment_layout']:
-            input_layout = getattr(self, layout)
-            if input_layout.right_field:
-                input_layout.left_field.input_widget.setFixedWidth(int(window_w * self.DUAL_SCALE))
-                input_layout.left_field.error_widget.setFixedWidth(int(window_w * self.DUAL_SCALE))
-                input_layout.right_field.input_widget.setFixedWidth(int(window_w * self.DUAL_SCALE))
-                input_layout.right_field.error_widget.setFixedWidth(int(window_w * self.DUAL_SCALE))
+            product_layout = getattr(self, layout)
+            if product_layout.right_field:
+                product_layout.left_field.input_widget.setFixedWidth(int(window_w * self.DUAL_SCALE))
+                product_layout.left_field.error_widget.setFixedWidth(int(window_w * self.DUAL_SCALE))
+                product_layout.right_field.input_widget.setFixedWidth(int(window_w * self.DUAL_SCALE))
+                product_layout.right_field.error_widget.setFixedWidth(int(window_w * self.DUAL_SCALE))
             else:
-                input_layout.left_field.input_widget.setFixedWidth(int(window_w * self.INVIDUAL_SCALE))
-                input_layout.left_field.error_widget.setFixedWidth(int(window_w * self.INVIDUAL_SCALE))
+                product_layout.left_field.input_widget.setFixedWidth(int(window_w * self.INVIDUAL_SCALE))
+                product_layout.left_field.error_widget.setFixedWidth(int(window_w * self.INVIDUAL_SCALE))
 
     def create_completer(self) -> tuple[QStringListModel, QCompleter]:
         """ Create completer for customer name and phone number """

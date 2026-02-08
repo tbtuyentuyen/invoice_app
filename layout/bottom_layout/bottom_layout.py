@@ -5,7 +5,7 @@ import qtawesome as qta
 
 from PyQt5.QtWidgets import QHBoxLayout, QPushButton
 
-from layout.styling import Style
+from common.styling import Style
 
 
 class BottomLayout(QHBoxLayout, Style):

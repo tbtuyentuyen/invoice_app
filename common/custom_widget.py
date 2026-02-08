@@ -9,8 +9,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLineEdit, QTableWidget, QMenu, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QMessageBox
 
 from tools.utils import clear_format_money
-from tools.common import ErrorMessage, TableAttribute, MessageBoxType
-from layout.styling import Style
+from common.styling import Style
+from common.constants import ErrorMessage, TableAttribute, MessageBoxType
 
 
 class MessageBoxWidget(QMessageBox, Style):

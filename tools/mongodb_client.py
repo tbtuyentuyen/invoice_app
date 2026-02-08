@@ -8,7 +8,7 @@ from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 from PyQt5.QtCore import QObject, pyqtSignal
 
-from tools.common import MongoDBStatus, DBCollection
+from common.constants import MongoDBStatus, DBCollection
 from tools.utils import load_json, save_json, expand_env_vars_in_path
 
 CONFIG_DIR = os.environ['CONFIG_DIR']
