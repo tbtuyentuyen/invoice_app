@@ -32,8 +32,7 @@ class MongoDBClient(QObject):
             DBCollection.CUSTOMER: database[DBCollection.CUSTOMER.name.lower()],
             DBCollection.PRODUCT: database[DBCollection.PRODUCT.name.lower()]
         }
-        self.offline_mode = True
-
+        self.is_connected = True
         os.makedirs(expand_env_vars_in_path(self.config.backup_folder), exist_ok=True)
 
     def start(self):
@@ -45,18 +44,16 @@ class MongoDBClient(QObject):
         """ Check connect to MongoDB """
         try:
             self.client.server_info()
-            self.offline_mode = False
+            self.is_connected = True
             self.finish_signal.emit(MongoDBStatus.CONNECTED.value)
-        except ServerSelectionTimeoutError:
-            self.offline_mode = True
-            self.finish_signal.emit(MongoDBStatus.DISCONNECTED.value)
         except Exception:  # pylint: disable=broad-exception-caught
-            self.offline_mode = True
-            self.finish_signal.emit(MongoDBStatus.UNKNOWN.value)
+            self.is_connected = False
+
+        return self.is_connected
 
     def disconnect_client(self):
         """ Disconnect to MongoDB"""
-        if not self.offline_mode:
+        if self.is_connected:
             self.client.close()
 
     def add_document(
@@ -70,7 +67,7 @@ class MongoDBClient(QObject):
         if not data_id:
             return False
 
-        if not self.offline_mode:
+        if self.is_connected:
             if data_id in collection.distinct("_id"):
                 collection.replace_one({'_id': data_id}, data)
             else:
@@ -83,14 +80,14 @@ class MongoDBClient(QObject):
 
     def get_customer_info(self)->list:
         """ Get all customer information """
-        if not self.offline_mode:
+        if self.is_connected:
             return self.collections[DBCollection.CUSTOMER].find()
         else:
             return []
 
     def get_product_info(self)->list:
         """ Get all product information """
-        if not self.offline_mode:
+        if self.is_connected:
             return self.collections[DBCollection.PRODUCT].find()
         else:
             return []

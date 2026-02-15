@@ -47,10 +47,15 @@ class Style():
                     color: #dc3545;
                     font-size: 13px;
                 }
-                
                 QLabel#invisible_error_label {
                     color: transparent;
                     font-size: 13px;
+                }
+                QLabel#loading_label {
+                    color: #DDF4E7;
+                    font-weight: bold;
+                    font-family: 'Segoe UI';
+                    font-size: 18px;
                 }
             """
         elif name == 'QCustomTableWidget':
@@ -116,6 +121,23 @@ class Style():
                 QFrame#top_frame {
                     border: 1px solid #666;
                     border-radius: 10px;
+                }
+                QFrame#loading_frame {
+                    background-color: rgba(30, 30, 40, 90);
+                    border-radius: 18px;
+                    border: 1px solid rgba(255, 255, 255, 30);
+                }
+            """
+        elif name == "QProgressBar":
+            return """
+                QProgressBar {
+                    background-color: rgba(255, 255, 255, 30);
+                    border: 1px solid rgba(255, 255, 255, 50);
+                    border-radius: 7px;
+                }
+                QProgressBar::chunk {
+                    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #4F959D, stop:1 #48B3AF);
+                    border-radius: 6px;
                 }
             """
         else:

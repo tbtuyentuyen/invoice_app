@@ -9,7 +9,7 @@ DB_PATH = os.environ['DB_PATH']
 
 def start_broker():
     """ Start MongoDB Broker """
-    cmd = f'start "MongoDB_Broker" cmd.exe /c ""{MONGOD_EXE}" --dbpath "{DB_PATH}""'
+    cmd = f'"{MONGOD_EXE}" --dbpath "{DB_PATH}"'
     subprocess.Popen(
         cmd,
         shell=True,

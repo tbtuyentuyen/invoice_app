@@ -17,18 +17,18 @@ INVOICE_APP_PATH = os.environ['INVOICE_APP_PATH']
 
 class MainWindow(QMainWindow): # pylint:disable=R0903
     """ Main Window class """
-    def __init__(self):
+    def __init__(self, mongodb_client: MongoDBClient):
         super().__init__()
         self.__generate_config_folder()
 
-        self.mongodb_client = MongoDBClient()
         self.main_layout = MainLayout(self)
         self.__config_window()
-        self.__init_ui()
 
+        self.mongodb_client = mongodb_client
         self.mongodb_client.finish_signal.connect(self.__change_status_bar)
         self.mongodb_client.finish_signal.connect(self.load_suggesion_data)
-        self.mongodb_client.start()
+
+        self.__init_ui()
 
     def __init_ui(self):
         menu_bar = MenuBar(self)
