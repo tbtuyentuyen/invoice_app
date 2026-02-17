@@ -3,6 +3,7 @@
 import os
 import re
 import json
+import shutil
 import hashlib
 import unicodedata
 
@@ -16,7 +17,28 @@ from openpyxl.drawing.spreadsheet_drawing import OneCellAnchor, AnchorMarker
 from openpyxl.utils import get_column_letter, column_index_from_string
 
 PX_TO_EMU = 9525
+CONFIG_DIR = os.environ['CONFIG_DIR']
+INVOICE_APP_PATH = os.environ['INVOICE_APP_PATH']
 
+def generate_config_folder():
+    """ Generate config folder if not exist """
+    source = os.path.join(INVOICE_APP_PATH, 'data')
+    assert os.path.isdir(source), f"Source path does not exist: {source}"
+
+    print(f"Generating config folder: {CONFIG_DIR}")
+    if not os.path.isdir(CONFIG_DIR):
+        os.makedirs(CONFIG_DIR)
+        print("Config folder created.")
+
+    for entry in os.listdir(source):
+        src_path = os.path.join(source, entry)
+        dest_path = os.path.join(CONFIG_DIR, entry)
+        if os.path.isdir(src_path):
+            if not os.path.exists(dest_path):
+                shutil.copytree(src_path, dest_path)
+        else:
+            if not os.path.exists(dest_path):
+                shutil.copy2(src_path, dest_path)
 
 def expand_env_vars_in_path(path: str) -> str:
     """ Expand environment variables in a given path """

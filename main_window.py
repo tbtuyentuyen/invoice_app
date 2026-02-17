@@ -2,7 +2,6 @@
 
 
 import os
-import shutil
 import qtawesome as qta
 
 from PyQt5.QtWidgets import QMainWindow, QWidget
@@ -12,15 +11,13 @@ from layout.main_layout import MainLayout
 from common.constants import MongoDBStatus
 from tools.mongodb_client import MongoDBClient
 
-CONFIG_DIR = os.environ['CONFIG_DIR']
 INVOICE_APP_PATH = os.environ['INVOICE_APP_PATH']
 
 class MainWindow(QMainWindow): # pylint:disable=R0903
     """ Main Window class """
     def __init__(self, mongodb_client: MongoDBClient):
         super().__init__()
-        self.__generate_config_folder()
-
+        self.mongodb_client = MongoDBClient()
         self.main_layout = MainLayout(self)
         self.__config_window()
 
@@ -49,24 +46,6 @@ class MainWindow(QMainWindow): # pylint:disable=R0903
 
     def __change_status_bar(self, status: str) -> None:
         self.statusBar().showMessage(f"MongoDB: {status}")
-
-    def __generate_config_folder(self):
-        """ Generate config folder if not exist """
-        source = os.path.join(INVOICE_APP_PATH, 'data')
-        assert os.path.isdir(source), f"Source path does not exist: {source}"
-
-        if not os.path.isdir(CONFIG_DIR):
-            os.makedirs(CONFIG_DIR)
-
-        for entry in os.listdir(source):
-            src_path = os.path.join(source, entry)
-            dest_path = os.path.join(CONFIG_DIR, entry)
-            if os.path.isdir(src_path):
-                if not os.path.exists(dest_path):
-                    shutil.copytree(src_path, dest_path)
-            else:
-                if not os.path.exists(dest_path):
-                    shutil.copy2(src_path, dest_path)
 
     def resizeEvent(self, event): # pylint: disable=invalid-name
         """ resize event"""
