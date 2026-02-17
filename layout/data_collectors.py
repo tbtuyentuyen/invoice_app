@@ -1,6 +1,7 @@
 """ Data Collector Module """
 
 
+import copy
 from datetime import datetime
 
 from common.constants import CustomerAttribute, DBCollection, MessageBoxType, TableAttribute
@@ -48,12 +49,12 @@ class DataCollectors:
 
     def _build_invoice_by_product_data(self, invoice_data: list) -> list:
         """ Collect product data from table """
-        products  = []
+        products = []
         for item in invoice_data:
             product_id = self.collect_product_data(item)
             if not product_id:
                 return None
-            products .append({
+            products.append({
                 "product_id": product_id,
                 "quantity": item[TableAttribute.QUANTITY.value],
                 "sum": item[TableAttribute.SUM.value],
@@ -93,7 +94,7 @@ class DataCollectors:
 
         # Upload customer data to database
         customer_id = customer_data[CustomerAttribute.PHONE_NUMBER.value]
-        if not self._upload_customer_data(customer_id, customer_data):
+        if not self._upload_customer_data(customer_id, copy.deepcopy(customer_data)):
             return None, None
 
         # Set customer data to user suggestion
@@ -118,7 +119,7 @@ class DataCollectors:
 
         # Build invoice data by product data
         invoice_id = f'invoice_{datetime.now().strftime("%y%m%d_%H%M%S")}'
-        products  = self._build_invoice_by_product_data(invoice_data)
+        products = self._build_invoice_by_product_data(invoice_data)
         if not products:
             return None, None
 
