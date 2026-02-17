@@ -4,6 +4,7 @@ import os
 
 from PyQt5.QtWidgets import QVBoxLayout
 
+from layout.data_collectors import DataCollectors
 from layout.events import Events
 from layout.customer_layout.customer_layout import CustomerLayout
 from layout.bottom_layout.bottom_layout import BottomLayout
@@ -24,6 +25,7 @@ class MainLayout(QVBoxLayout, Style): # pylint:disable=R0903
         self.config = load_json(self.config_path)
 
         self.events = Events(self)
+        self.data_collectors = DataCollectors(self)
         self.customer_layout = CustomerLayout(self)
         self.middle_layout = MiddleLayout(self)
         self.bottom_layout = BottomLayout()
