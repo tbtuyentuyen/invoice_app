@@ -25,10 +25,8 @@ def generate_config_folder():
     source = os.path.join(INVOICE_APP_PATH, 'data')
     assert os.path.isdir(source), f"Source path does not exist: {source}"
 
-    print(f"Generating config folder: {CONFIG_DIR}")
     if not os.path.isdir(CONFIG_DIR):
         os.makedirs(CONFIG_DIR)
-        print("Config folder created.")
 
     for entry in os.listdir(source):
         src_path = os.path.join(source, entry)

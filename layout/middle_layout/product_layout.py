@@ -122,12 +122,11 @@ class ProductLayout(QVBoxLayout, VerifyInputWidget, Style):
 
     def validate_all_data(self, data: dict):
         """ Validate all data before adding to table"""
-        validate_status = True
         for key, item in data.items():
             status = self.verify_input_logic(widget_dict=self._input_dict[key], data=item)
             if not status:
-                validate_status = False
-        return validate_status
+                return False
+        return True
 
     def set_data_to_input_field(self, data: dict) -> None:
         """ Set data to input field """
@@ -141,14 +140,14 @@ class ProductLayout(QVBoxLayout, VerifyInputWidget, Style):
             self.add_button.setIcon(add_icon)
             self.add_button.setText("Thêm")
             self.add_button.clicked.disconnect()
-            self.add_button.clicked.connect(self.parent.parent.events.on_add_button_clicked)
+            self.add_button.clicked.connect(self.parent.parent.events.on_add_product_clicked)
 
         elif mode == InputMode.EDIT:
             save_icon = qta.icon("fa5s.edit", color='white')
             self.add_button.setIcon(save_icon)
             self.add_button.setText("Cập nhật")
             self.add_button.clicked.disconnect()
-            self.add_button.clicked.connect(self.parent.parent.events.on_save_button_clicked)
+            self.add_button.clicked.connect(self.parent.parent.events.on_update_product_clicked)
 
         else:
             raise TypeError(f"[ERROR] Invalid input mode, '{mode}'")

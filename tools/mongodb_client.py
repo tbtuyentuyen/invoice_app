@@ -5,11 +5,10 @@ import os
 import threading
 
 from pymongo import MongoClient
-from pymongo.errors import ServerSelectionTimeoutError
 from PyQt5.QtCore import QObject, pyqtSignal
 
 from common.constants import MongoDBStatus, DBCollection
-from tools.utils import load_json, save_json, expand_env_vars_in_path
+from tools.utils import load_json
 
 CONFIG_DIR = os.environ['CONFIG_DIR']
 
@@ -33,11 +32,14 @@ class MongoDBClient(QObject):
             DBCollection.PRODUCT: database[DBCollection.PRODUCT.name.lower()]
         }
         self.is_connected = True
-        os.makedirs(expand_env_vars_in_path(self.config.backup_folder), exist_ok=True)
 
     def start(self):
         """ Start MongoDB Client """
-        mongodb_thread = threading.Thread(target=self.check_connection, name="MongoDBThread", daemon=True)
+        mongodb_thread = threading.Thread(
+            target=self.check_connection,
+            name="MongoDBThread",
+            daemon=True
+        )
         mongodb_thread.start()
 
     def check_connection(self):
@@ -67,30 +69,28 @@ class MongoDBClient(QObject):
         if not data_id:
             return False
 
-        if self.is_connected:
-            if data_id in collection.distinct("_id"):
-                collection.replace_one({'_id': data_id}, data)
-            else:
-                collection.insert_one(data)
-            return True
-        else:
-            save_path = os.path.join(expand_env_vars_in_path(self.config.backup_folder), f"{data_id}.json")
-            save_json(data, save_path)
-            return save_path
+        if not self.is_connected:
+            return False
 
-    def get_customer_info(self)->list:
+        if data_id in collection.distinct("_id"):
+            collection.replace_one({'_id': data_id}, data)
+        else:
+            collection.insert_one(data)
+        return True
+
+    def get_customer_info(self) -> list:
         """ Get all customer information """
-        if self.is_connected:
-            return self.collections[DBCollection.CUSTOMER].find()
-        else:
+        if not self.is_connected:
             return []
 
-    def get_product_info(self)->list:
+        return list(self.collections[DBCollection.CUSTOMER].find())            
+
+    def get_product_info(self) -> list:
         """ Get all product information """
-        if self.is_connected:
-            return self.collections[DBCollection.PRODUCT].find()
-        else:
+        if not self.is_connected:
             return []
+
+        return list(self.collections[DBCollection.PRODUCT].find())
 
 if __name__=="__main__":
     db = MongoDBClient()
