@@ -14,7 +14,7 @@ class DataCollectors:
 
     def __init__(self, parent):
         self.parent = parent
-        self.mongodb_client:MongoDBClient = self.parent.parent.mongodb_client
+        self.mongodb_client: MongoDBClient = self.parent.parent.mongodb_client
 
     def _upload_to_database(self, data: dict|list, collection_name: list) -> bool:
         """ Upload data to database """
@@ -23,7 +23,7 @@ class DataCollectors:
             error_box = MessageBoxWidget(
                 MessageBoxType.ERROR,
                 "Lỗi lưu dữ liệu",
-                f"Không thể lưu dữ liệu vào database {collection_name}. Vui lòng thử lại sau!"
+                f"Không thể lưu dữ liệu vào database {collection_name.name.lower()}. Vui lòng thử lại sau!"
             )
             error_box.exec_()
             return False
@@ -36,11 +36,11 @@ class DataCollectors:
         })
         return self._upload_to_database(customer_data, DBCollection.CUSTOMER)
 
-    def _upload_invoice_data(self, invoice_id: str, invoice_list: list, customer_id: str) -> bool:
+    def _upload_invoice_data(self, invoice_id: str, products: list, customer_id: str) -> bool:
         """ Upload invoice data to database """
         invoice = {
             "_id": invoice_id,
-            "data": invoice_list,
+            "data": products,
             "customer_id": customer_id,
             "updated_at": datetime.now()
         }
@@ -48,17 +48,17 @@ class DataCollectors:
 
     def _build_invoice_by_product_data(self, invoice_data: list) -> list:
         """ Collect product data from table """
-        invoice_list = []
+        products  = []
         for item in invoice_data:
             product_id = self.collect_product_data(item)
             if not product_id:
                 return None
-            invoice_list.append({
+            products .append({
                 "product_id": product_id,
                 "quantity": item[TableAttribute.QUANTITY.value],
                 "sum": item[TableAttribute.SUM.value],
             })
-        return invoice_list
+        return products
 
     def collect_product_data(self, invoice_item: dict) -> str:
         """ Collect product data from invoice data """
@@ -76,7 +76,7 @@ class DataCollectors:
             return None
         return product_id
 
-    def collect_customer_data(self) -> dict:
+    def collect_customer_data(self) -> tuple[str, dict]:
         """ Collect customer data from input field """
         # Get customer data from input field
         customer_data = self.parent.customer_layout.get_data()
@@ -89,17 +89,17 @@ class DataCollectors:
                 "Xin điền người mua trước khi xuất hóa đơn!"
             )
             warning_box.exec_()
-            return None
+            return None, None
 
         # Upload customer data to database
         customer_id = customer_data[CustomerAttribute.PHONE_NUMBER.value]
         if not self._upload_customer_data(customer_id, customer_data):
-            return None
+            return None, None
 
         # Set customer data to user suggestion
         self.parent.customer_layout.user_suggestion[customer_id] = customer_data
 
-        return customer_id, customer_data
+        return (customer_id, customer_data)
 
     def collect_invoice_data(self, customer_id:str) -> tuple[str, list]:
         """ Collect invoice data from table """
@@ -111,15 +111,19 @@ class DataCollectors:
             warning_box = MessageBoxWidget(
                 MessageBoxType.WARNING,
                 "Xuất hóa đơn thất bại",
-                "Xin điền thông tin hóa đơn trước khi xuất hóa đơn!"
+                "Xin điền thông tin sản phẩm trước khi xuất hóa đơn!"
             )
             warning_box.exec_()
-            return None
+            return None, None
 
-        # Build invoice data by product data and upload to database
+        # Build invoice data by product data
         invoice_id = f'invoice_{datetime.now().strftime("%y%m%d_%H%M%S")}'
-        invoice_list = self._build_invoice_by_product_data(invoice_data)
-        if not self._upload_invoice_data(invoice_id, invoice_list, customer_id):
-            return None
+        products  = self._build_invoice_by_product_data(invoice_data)
+        if not products:
+            return None, None
+
+        # Upload invoice data to database
+        if not self._upload_invoice_data(invoice_id, products , customer_id):
+            return None, None
 
         return (invoice_id, invoice_data)

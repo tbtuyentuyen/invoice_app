@@ -103,7 +103,7 @@ class Events():
         customer_id, customer_data = self.parent.data_collectors.collect_customer_data()
         if not customer_data:
             return
-        invoice_id,invoice_data = self.parent.data_collectors.collect_invoice_data(customer_id)
+        invoice_id, invoice_data = self.parent.data_collectors.collect_invoice_data(customer_id)
         if not invoice_data:
             return
         self.parent.parent.load_suggesion_data()
