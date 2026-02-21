@@ -7,7 +7,7 @@ from datetime import datetime
 from common.constants import CustomerAttribute, DBCollection, MessageBoxType, TableAttribute
 from common.custom_widget import MessageBoxWidget
 from common.app_context import AppContext
-from tools.utils import encode_product_id
+from tools.utils import encode_product_id, save_json
 
 
 class DataCollectors:
@@ -24,10 +24,17 @@ class DataCollectors:
             error_box = MessageBoxWidget(
                 MessageBoxType.ERROR,
                 "Lỗi lưu dữ liệu",
-                f"Không thể lưu dữ liệu vào database {collection_name.name.lower()}. Vui lòng thử lại sau!"
+                f"Không thể lưu dữ liệu vào database {collection_name.name.lower()}. Thông tin sẽ được lưu vào file local.",
             )
             error_box.exec_()
-            return False
+
+            # Save data to local file
+            try:
+                filename = f"{data['_id']}.json"
+                save_json(data, filename)
+            except Exception as e: # pylint: disable=broad-exception-caught
+                print(f"[ERROR] Failed to save data to local file: {e}")
+                return False
         return True
 
     def _upload_customer_data(self, customer_id: str, customer_data: dict) -> bool:
