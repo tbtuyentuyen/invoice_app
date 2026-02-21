@@ -3,6 +3,9 @@
 
 import os
 
+from PyQt5.QtCore import QUrl
+from PyQt5.QtGui import QDesktopServices
+
 from tools.invoice_builder import InvoiceBuilder
 from common.app_context import AppContext
 from common.custom_widget import MessageBoxWidget
@@ -130,9 +133,12 @@ class SalesEvents():
         info_box = MessageBoxWidget(
             MessageBoxType.INFO,
             "Xuất hóa đơn thành công",
-            f"Hóa đơn được lưu tại:\n'{os.path.abspath(pdf_path)}'."
+            f'Hóa đơn được lưu tại:\n{os.path.abspath(pdf_path)}'
         )
-        info_box.exec_()
+
+        open_btn.clicked.connect(
+            lambda: QDesktopServices.openUrl(QUrl.fromLocalFile(folder_path))
+        )
 
         # Clear data on table and input field
         self.parent_view.middle_layout.table_layout.clean_table()
