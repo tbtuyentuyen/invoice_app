@@ -90,12 +90,12 @@ class DataCollectors:
                 "Xin điền người mua trước khi xuất hóa đơn!"
             )
             warning_box.exec_()
-            return None, None
+            return (None, None)
 
         # Upload customer data to database
         customer_id = customer_data[CustomerAttribute.PHONE_NUMBER.value]
         if not self._upload_customer_data(customer_id, copy.deepcopy(customer_data)):
-            return None, None
+            return (None, None)
 
         # Set customer data to user suggestion
         self.parent.customer_layout.user_suggestion[customer_id] = customer_data
@@ -115,16 +115,16 @@ class DataCollectors:
                 "Xin điền thông tin sản phẩm trước khi xuất hóa đơn!"
             )
             warning_box.exec_()
-            return None, None
+            return (None, None)
 
         # Build invoice data by product data
         invoice_id = f'invoice_{datetime.now().strftime("%y%m%d_%H%M%S")}'
         products = self._build_invoice_by_product_data(invoice_data)
         if not products:
-            return None, None
+            return (None, None)
 
         # Upload invoice data to database
         if not self._upload_invoice_data(invoice_id, products , customer_id):
-            return None, None
+            return (None, None)
 
         return (invoice_id, invoice_data)

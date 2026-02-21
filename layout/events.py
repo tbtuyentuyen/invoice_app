@@ -99,15 +99,6 @@ class Events():
 
     def on_export_button_clicked(self):
         """ Event clicked on export button """
-        # Collect customer data and invoice data
-        customer_id, customer_data = self.parent.data_collectors.collect_customer_data()
-        if not customer_data:
-            return
-        invoice_id, invoice_data = self.parent.data_collectors.collect_invoice_data(customer_id)
-        if not invoice_data:
-            return
-        self.parent.parent.load_suggesion_data()
-
         # Confirm export invoice
         question_box = MessageBoxWidget(
             MessageBoxType.QUESTION,
@@ -117,6 +108,15 @@ class Events():
         question_box.exec_()
         if question_box.clickedButton() == question_box.button_reject:
             return
+
+        # Collect customer data and invoice data
+        customer_id, customer_data = self.parent.data_collectors.collect_customer_data()
+        if not customer_data:
+            return
+        invoice_id, invoice_data = self.parent.data_collectors.collect_invoice_data(customer_id)
+        if not invoice_data:
+            return
+        self.parent.parent.load_suggesion_data()
 
         # Build invoice
         try:
