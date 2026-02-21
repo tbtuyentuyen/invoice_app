@@ -140,6 +140,32 @@ class Style():
                     border-radius: 6px;
                 }
             """
+        elif name in ["QTabWidget", "MainTabWidget"]:
+            return """
+                QTabWidget::pane {
+                    border: 1px solid #320A6B;
+                    background-color: #EAEFEF;
+                }
+            """
+        elif name in ["QTabBar", "VerticalTabBar"]:
+            return """
+                QTabBar::tab {
+                    background-color: #EAEFEF;
+                    color: white;
+                    border-style: none;
+                    font-family: 'Segoe UI';
+                    font-weight: 500;
+                    font-size: 18px;
+                    padding: 5px;
+                }
+                QTabBar::tab:selected {
+                    background-color: #E9EED9;
+                    border-left: 8px solid #4F959D;
+                }
+                QTabBar::tab:hover {
+                    border-left: 8px solid #78B9B5;
+                }
+            """
         else:
             raise TypeError(f"[ERROR] Invalid class name {name}!")
 

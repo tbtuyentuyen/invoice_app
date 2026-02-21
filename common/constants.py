@@ -68,3 +68,10 @@ class DBCollection(Enum):
     INVOICE = auto()
     CUSTOMER = auto()
     PRODUCT = auto()
+
+class TabAttribute(Enum):
+    """ Tab Attribute class """
+    SALES_MANAGEMENT = "Quản lý bán hàng"
+    REVENEUE_STATISTICS = "Thống kê doanh thu"
+    ANALYTICS_CUSTOMER = "Phân tích khách hàng"
+    PRODUCT_MANAGEMENT = "Quản lý sản phẩm"

@@ -5,8 +5,21 @@ import re
 
 import qtawesome as qta
 from pydotdict import DotDict
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QLineEdit, QTableWidget, QMenu, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QMessageBox
+from PyQt5.QtCore import Qt, QSize, QRect
+from PyQt5.QtWidgets import (
+    QLineEdit,
+    QTableWidget,
+    QMenu,
+    QVBoxLayout,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QMessageBox,
+    QTabBar,
+    QStylePainter,
+    QStyleOptionTab,
+    QStyle
+)
 
 from tools.utils import clear_format_money
 from common.styling import Style
@@ -119,7 +132,7 @@ class QCustomTableWidget(QTableWidget):
     def __init__(self, parent=None):
         """Store parent for callback use."""
         super().__init__()
-        self.parent = parent
+        self.parent_view = parent
 
     def mousePressEvent(self, event):  # pylint: disable=invalid-name
         """
@@ -145,8 +158,8 @@ class QCustomTableWidget(QTableWidget):
             col = item.column()
 
             # Notify parent to highlight
-            if hasattr(self.parent, "highlight_edit_row"):
-                self.parent.highlight_edit_row(row, col)
+            if hasattr(self.parent_view, "highlight_edit_row"):
+                self.parent_view.highlight_edit_row(row, col)
 
             # Build context menu
             menu = QMenu(self)
@@ -154,14 +167,14 @@ class QCustomTableWidget(QTableWidget):
 
             # Connect delete action
             delete_action.triggered.connect(
-                lambda checked_state: self.parent.delete_data_by_row(checked_state, row)
+                lambda checked_state: self.parent_view.delete_data_by_row(checked_state, row)
             )
 
             # Show menu at cursor
             menu.exec_(self.mapToGlobal(event.pos()))
 
             # Clean highlight
-            self.parent.clean_table_color()
+            self.parent_view.clean_table_color()
 
 class VerifyInputWidget(Style):
     """ Verify Input Widget class """
@@ -410,3 +423,38 @@ class CustomerInputFieldLayout(QHBoxLayout, Style):
 
         input_widget.textChanged.connect(on_text_changed)
 
+
+class VerticalTabBar(QTabBar, Style):
+    """ Vertical Tab Bar class """
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.set_style(self)
+
+    def tabSizeHint(self, index):   # pylint: disable=invalid-name
+        """ Override to set fixed tab size for vertical orientation. """
+        return QSize(60, 60)
+
+    def paintEvent(self, event):    # pylint: disable=invalid-name
+        """ Override to customize tab painting for vertical orientation. """
+        painter = QStylePainter(self)
+
+        for index in range(self.count()):
+            option = QStyleOptionTab()
+            self.initStyleOption(option, index)
+
+            option.text = ""
+
+            rect = self.tabRect(index)
+            option.rect = rect
+
+            painter.drawControl(QStyle.CE_TabBarTabShape, option)
+
+            if not option.icon.isNull():
+                icon_size = option.iconSize
+                icon_rect = QRect(
+                    rect.center().x() - icon_size.width() // 2,
+                    rect.center().y() - icon_size.height() // 2,
+                    icon_size.width(),
+                    icon_size.height(),
+                )
+                option.icon.paint(painter, icon_rect, Qt.AlignCenter)

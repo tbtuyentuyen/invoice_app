@@ -6,20 +6,20 @@ from datetime import datetime
 
 from common.constants import CustomerAttribute, DBCollection, MessageBoxType, TableAttribute
 from common.custom_widget import MessageBoxWidget
-from tools.mongodb_client import MongoDBClient
+from common.app_context import AppContext
 from tools.utils import encode_product_id
 
 
 class DataCollectors:
     """ Class collect data from all input field and validate data before save to database """
 
-    def __init__(self, parent):
-        self.parent = parent
-        self.mongodb_client: MongoDBClient = self.parent.parent.mongodb_client
+    def __init__(self, parent_view):
+        self.parent_view = parent_view
+        self.context: AppContext = self.parent_view.context
 
     def _upload_to_database(self, data: dict|list, collection_name: list) -> bool:
         """ Upload data to database """
-        sts = self.mongodb_client.add_document(data, collection_name)
+        sts = self.context.mongodb_client.add_document(data, collection_name)
         if not sts:
             error_box = MessageBoxWidget(
                 MessageBoxType.ERROR,
@@ -80,10 +80,10 @@ class DataCollectors:
     def collect_customer_data(self) -> tuple[str, dict]:
         """ Collect customer data from input field """
         # Get customer data from input field
-        customer_data = self.parent.customer_layout.get_data()
+        customer_data = self.parent_view.customer_layout.get_data()
 
         # Validate customer data
-        if not self.parent.customer_layout.validate_all_data(customer_data):
+        if not self.parent_view.customer_layout.validate_all_data(customer_data):
             warning_box = MessageBoxWidget(
                 MessageBoxType.WARNING,
                 "Xuất hóa đơn thất bại",
@@ -98,14 +98,14 @@ class DataCollectors:
             return (None, None)
 
         # Set customer data to user suggestion
-        self.parent.customer_layout.user_suggestion[customer_id] = customer_data
+        self.parent_view.customer_layout.user_suggestion[customer_id] = customer_data
 
         return (customer_id, customer_data)
 
     def collect_invoice_data(self, customer_id:str) -> tuple[str, list]:
         """ Collect invoice data from table """
         # Get invoice data from table
-        invoice_data = self.parent.middle_layout.table_layout.get_table_data()
+        invoice_data = self.parent_view.middle_layout.table_layout.get_table_data()
 
         # Validate invoice data
         if not invoice_data:

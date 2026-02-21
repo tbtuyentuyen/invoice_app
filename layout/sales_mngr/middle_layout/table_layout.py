@@ -14,9 +14,9 @@ from tools.utils import clear_format_money
 
 class TableLayout(QVBoxLayout, Style):
     """ Table Layout class """
-    def __init__(self, parent):
+    def __init__(self, parent_view):
         super().__init__()
-        self.parent = parent
+        self.parent_view = parent_view
         self.table_data = []
 
         self.col_dict = {
@@ -156,3 +156,7 @@ class TableLayout(QVBoxLayout, Style):
     def clean_table(self):
         """ Clean table data """
         self.table_data = []
+
+    def lock_table(self, status: bool):
+        """ Lock or unlock table """
+        self.table_widget.setDisabled(status)

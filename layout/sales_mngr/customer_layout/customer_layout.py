@@ -54,7 +54,7 @@ class CustomerLayout(QVBoxLayout, VerifyInputWidget):
         self.set_style(self.frame)
 
         super().__init__(self.frame)
-        self.parent = parent
+        self.parent_view = parent
         self.expand_icon = qta.icon('mdi.expand-all')
         self.collapse_icon = qta.icon('mdi.collapse-all')
         self.clear_icon = qta.icon('mdi6.broom', color='white')
