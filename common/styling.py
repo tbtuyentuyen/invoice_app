@@ -159,7 +159,7 @@ class Style():
                     padding: 5px;
                 }
                 QTabBar::tab:selected {
-                    background-color: #E9EED9;
+                    background-color: #C4DAD2;
                     border-left: 8px solid #4F959D;
                 }
                 QTabBar::tab:hover {
