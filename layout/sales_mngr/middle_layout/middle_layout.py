@@ -3,15 +3,14 @@
 
 from PyQt5.QtWidgets import QHBoxLayout, QWidget
 
-from layout.middle_layout.table_layout import TableLayout
-from layout.middle_layout.product_layout import ProductLayout
-
+from layout.sales_mngr.middle_layout.table_layout import TableLayout
+from layout.sales_mngr.middle_layout.product_layout import ProductLayout
 
 class MiddleLayout(QHBoxLayout):
     """ Middle Layout class """
-    def __init__(self, parent):
+    def __init__(self, parent_view):
         super().__init__()
-        self.parent = parent
+        self.parent_view = parent_view
 
         self.table_widget = QWidget()
         self.table_layout = TableLayout(self)

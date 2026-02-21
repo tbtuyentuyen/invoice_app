@@ -47,9 +47,9 @@ class ProductLayout(QVBoxLayout, VerifyInputWidget, Style):
         }
     })
 
-    def __init__(self, parent):
+    def __init__(self, parent_view):
         super().__init__()
-        self.parent = parent
+        self.parent_view = parent_view
         self.mode = InputMode.ADD
 
         self.name_suggestion = []
@@ -131,7 +131,7 @@ class ProductLayout(QVBoxLayout, VerifyInputWidget, Style):
     def set_data_to_input_field(self, data: dict) -> None:
         """ Set data to input field """
         for key, item in self._input_dict.items():
-            item.input_widget.setText(data[key])
+            item.input_widget.setText(str(data[key.value]))
 
     def set_input_mode(self, mode: InputMode):
         """ Set input mode """
@@ -140,14 +140,16 @@ class ProductLayout(QVBoxLayout, VerifyInputWidget, Style):
             self.add_button.setIcon(add_icon)
             self.add_button.setText("Thêm")
             self.add_button.clicked.disconnect()
-            self.add_button.clicked.connect(self.parent.parent.events.on_add_product_clicked)
+            self.add_button.clicked.connect(self.parent_view.parent_view.events.on_add_product_clicked)
+            self.parent_view.table_layout.lock_table(False)
 
         elif mode == InputMode.EDIT:
             save_icon = qta.icon("fa5s.edit", color='white')
             self.add_button.setIcon(save_icon)
             self.add_button.setText("Cập nhật")
             self.add_button.clicked.disconnect()
-            self.add_button.clicked.connect(self.parent.parent.events.on_update_product_clicked)
+            self.add_button.clicked.connect(self.parent_view.parent_view.events.on_update_product_clicked)
+            self.parent_view.table_layout.lock_table(True)
 
         else:
             raise TypeError(f"[ERROR] Invalid input mode, '{mode}'")

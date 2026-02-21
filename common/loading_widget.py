@@ -12,9 +12,11 @@ from PyQt5.QtGui import QPainter, QPen, QColor
 
 from common.custom_widget import MessageBoxWidget
 from common.constants import MessageBoxType
+from common.app_context import AppContext
 from common.styling import Style
 from tools.mongodb_client import MongoDBClient
 from tools.process_helper import start_broker
+
 
 class CircularLoading(QWidget):
     """ Circular loading animation widget """
@@ -31,7 +33,7 @@ class CircularLoading(QWidget):
         self.angle = (self.angle + 8) % 360
         self.update()
 
-    def paintEvent(self, event):
+    def paintEvent(self, event):    # pylint:disable=[invalid-name, unused-argument]
         """ Paint the circular loading animation """
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
@@ -50,9 +52,9 @@ class LoadingWidget(QWidget, Style):
     finished = pyqtSignal()
     failed = pyqtSignal()
 
-    def __init__(self, mongodb_client: MongoDBClient):
+    def __init__(self, context: AppContext):
         super().__init__()
-        self.mongodb_client = mongodb_client
+        self.mongodb_client: MongoDBClient = context.mongodb_client
         self.init_ui()
 
     def init_ui(self):
