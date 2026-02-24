@@ -1,13 +1,15 @@
 """ Data Collector Module """
 
 
+import os
 import copy
 from datetime import datetime
 
 from common.constants import CustomerAttribute, DBCollection, MessageBoxType, TableAttribute
 from common.custom_widget import MessageBoxWidget
 from common.app_context import AppContext
-from tools.utils import encode_product_id, save_json
+from tools.utils import expand_env_vars_in_path
+from tools.utils import encode_product_id, save_json, load_json
 
 
 class DataCollectors:
@@ -30,8 +32,10 @@ class DataCollectors:
 
             # Save data to local file
             try:
-                filename = f"{data['_id']}.json"
-                save_json(data, filename)
+                backup_folder = expand_env_vars_in_path(self.context.config.backup_folder)
+                filename = os.path.join(backup_folder, f"{f"{data['_id']}.json"}")
+                os.makedirs(backup_folder, exist_ok=True)
+                save_json(data.to_dict(), filename)
             except Exception as e: # pylint: disable=broad-exception-caught
                 print(f"[ERROR] Failed to save data to local file: {e}")
                 return False
@@ -50,7 +54,7 @@ class DataCollectors:
             "_id": invoice_id,
             "data": products,
             "customer_id": customer_id,
-            "updated_at": datetime.now()
+            "updated_at": datetime.now().isoformat()
         }
         return self._upload_to_database(invoice, DBCollection.INVOICE)
 
@@ -78,7 +82,7 @@ class DataCollectors:
             "_id": product_id,
             TableAttribute.NAME.value: invoice_item[TableAttribute.NAME.value],
             TableAttribute.TYPE.value: invoice_item[TableAttribute.TYPE.value],
-            TableAttribute.PRICE.value: invoice_item[TableAttribute.PRICE.value],
+            TableAttribute.PRICE.value: invoice_item[TableAttribute.PRICE.value]
         }
         if not self._upload_to_database(product, DBCollection.PRODUCT):
             return None
@@ -135,3 +139,22 @@ class DataCollectors:
             return (None, None)
 
         return (invoice_id, invoice_data)
+
+    def upload_local_data(self):
+        """ Upload data from local file to database """
+        backup_path = expand_env_vars_in_path(self.context.config.backup_folder)
+        for filename in os.listdir(backup_path):
+            if filename.endswith('.json'):
+                name = filename[:-5]
+                json_path = os.path.join(backup_path, filename)
+                data = load_json(json_path).to_dict()
+                collection = None
+                if name.startswith("invoice_"):
+                    collection = DBCollection.INVOICE
+                elif name.isdigit():
+                    collection = DBCollection.CUSTOMER
+                else:
+                    collection = DBCollection.PRODUCT
+
+                if collection and self._upload_to_database(data, collection):
+                    os.remove(json_path)

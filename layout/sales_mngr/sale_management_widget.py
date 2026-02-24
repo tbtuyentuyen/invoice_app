@@ -43,6 +43,8 @@ class SalesManagementWidget(QWidget, Style): # pylint:disable=R0903
 
     def load_suggesion_data(self, status: str = None) -> None:   # pylint: disable=unused-argument
         """ Load suggestion data """
+        self.data_collectors.upload_local_data()
+
         customers_data = self.context.mongodb_client.get_customer_info()
         self.customer_layout.load_data_suggestion(customers_data)
 
