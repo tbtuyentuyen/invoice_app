@@ -131,9 +131,9 @@ def clear_format_money(text: str):
     """ Clear format money """
     return text.replace('.', '').replace(',', '').replace('VNĐ', '').replace(' ', '').strip()
 
-def encode_product_id(name: str, type_: str) -> str:
+def encode_product_id(name: str, type_: str, price: str) -> str:
     """ Encode product id """
-    text = f"{name}-{type_}"
+    text = f"{name}-{type_}-{price}"
     slug = unicodedata.normalize("NFKD", text)
     slug = slug.encode("ascii", "ignore").decode("ascii")
     slug = re.sub(r"[^a-zA-Z0-9]+", "-", slug)
