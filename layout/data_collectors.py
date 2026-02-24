@@ -76,7 +76,8 @@ class DataCollectors:
         """ Collect product data from invoice data """
         product_id = encode_product_id(
             invoice_item[TableAttribute.NAME.value],
-            invoice_item[TableAttribute.TYPE.value]
+            invoice_item[TableAttribute.TYPE.value],
+            invoice_item[TableAttribute.PRICE.value]
         )
         product = {
             "_id": product_id,
