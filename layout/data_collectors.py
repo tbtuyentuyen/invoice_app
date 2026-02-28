@@ -33,8 +33,9 @@ class DataCollectors:
             # Save data to local file
             try:
                 backup_folder = expand_env_vars_in_path(self.context.config.backup_folder)
-                filename = os.path.join(backup_folder, f"{f"{data['_id']}.json"}")
                 os.makedirs(backup_folder, exist_ok=True)
+
+                filename = os.path.join(backup_folder, f"{f"{data['_id']}.json"}")
                 save_json(data.to_dict(), filename)
             except Exception as e: # pylint: disable=broad-exception-caught
                 print(f"[ERROR] Failed to save data to local file: {e}")

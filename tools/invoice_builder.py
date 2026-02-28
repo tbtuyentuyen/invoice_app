@@ -25,8 +25,6 @@ from openpyxl.utils import get_column_letter, column_index_from_string
 from common.constants import TableAttribute, CustomerAttribute
 from tools.utils import load_json, add_image_fit_cell, export_xlsx_to_pdf, expand_env_vars_in_path
 
-CONFIG_DIR = os.environ['CONFIG_DIR']
-
 THIN = Side(style="thin", color="000000")
 MED  = Side(style="medium", color="000000")
 THICK = Side(style="thick", color="000000")
@@ -52,10 +50,10 @@ Item = Dict[str, Optional[str]]  # name, unit, qty, price
 
 class InvoiceBuilder():
     """ Invoicce Builder Class """
-    def __init__(self):
+    def __init__(self, context):
         self.customer_name = None
-        self.config = load_json(os.path.join(CONFIG_DIR, 'config.json'))
-        self.shop_info = load_json(os.path.join(CONFIG_DIR, 'shop_info.json'))
+        self.config = context.config
+        self.shop_info = load_json(context.config.shop_info_path)
 
         # Create workbook
         self.wb = Workbook()
