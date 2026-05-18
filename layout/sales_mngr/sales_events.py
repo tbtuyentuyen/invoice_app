@@ -18,7 +18,7 @@ class SalesEvents():
         self.parent_view = parent_view
         self.context: AppContext = parent_view.context
         self.edit_row = None
-        self.invoice_builder = InvoiceBuilder()
+        self.invoice_builder = InvoiceBuilder(self.context)
 
     def on_clear_customer_clicked(self):
         """ Event press clear button on top layout """

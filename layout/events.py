@@ -39,3 +39,4 @@ class Events():   # pylint:disable=R0903
 
         if folder_path:
             self.context.config.export_folder = folder_path
+            self.context.save_config()

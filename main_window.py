@@ -1,7 +1,6 @@
 """ Main Window module """
 
 
-import os
 import qtawesome as qta
 
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout
