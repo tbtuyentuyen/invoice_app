@@ -3,6 +3,12 @@
 
 from enum import Enum, auto
 
+class InvoiceFontSize(Enum):
+    """ Font size class for invoice visualization """
+    NORMAL = 12
+    HEADER = 16
+    BIG = 25
+
 class RegexPatterns(Enum): # pylint:disable=R0903
     """ Pattern class for regex """
     VIETNAMESE = r"a-zA-Zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệđìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ"

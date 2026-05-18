@@ -16,6 +16,10 @@ class MenuBar(QMenuBar):
         self.export_path_action.triggered.connect(self.parent_view.events.on_set_export_path_clicked)
         setting_menu.addAction(self.export_path_action)
 
+        self.shop_config_action = QAction("Thông tin cửa hàng", self)
+        self.shop_config_action.triggered.connect(self.parent_view.events.on_shop_config_clicked)
+        setting_menu.addAction(self.shop_config_action)
+
         self.check_db_connection = QAction("Kiểm tra kết nối database", self)
         self.check_db_connection.triggered.connect(self.context.mongodb_client.start)
         setting_menu.addAction(self.check_db_connection)
