@@ -18,6 +18,7 @@ class AppContext():
     def __init__(self):
         self.mongodb_client = MongoDBClient()
         self.config = self.load_config()
+        self.shop_config = load_json(self.config.shop_info_path)
 
     def load_config(self) -> DotDict:
         """ Load configuration from file """

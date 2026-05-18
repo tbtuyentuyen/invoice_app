@@ -18,12 +18,12 @@ from datetime import datetime
 from typing import  Dict, Optional
 
 from openpyxl import Workbook
-from openpyxl.worksheet.page import PageMargins # pylint: disable=ungrouped-imports
 from openpyxl.styles import Alignment, Border, Side, Font, PatternFill
 from openpyxl.utils import get_column_letter, column_index_from_string
+from openpyxl.worksheet.page import PageMargins
 
-from common.constants import TableAttribute, CustomerAttribute
-from tools.utils import load_json, add_image_fit_cell, export_xlsx_to_pdf, expand_env_vars_in_path
+from common.constants import TableAttribute, CustomerAttribute, InvoiceFontSize
+from tools.utils import add_image_fit_cell, export_xlsx_to_pdf, expand_env_vars_in_path
 
 THIN = Side(style="thin", color="000000")
 MED  = Side(style="medium", color="000000")
@@ -53,7 +53,7 @@ class InvoiceBuilder():
     def __init__(self, context):
         self.customer_name = None
         self.config = context.config
-        self.shop_info = load_json(context.config.shop_info_path)
+        self.shop_info = context.shop_config
 
         # Create workbook
         self.wb = Workbook()
@@ -122,9 +122,9 @@ class InvoiceBuilder():
         left_end = 'D'
         right_start = 'E'
         right_end = 'G'
-        normal_size = 12
-        middle_size = 16
-        big_size = 25
+        normal_size = InvoiceFontSize.NORMAL.value
+        middle_size = InvoiceFontSize.HEADER.value
+        big_size = InvoiceFontSize.BIG.value
 
         row = 2
         self._merge(

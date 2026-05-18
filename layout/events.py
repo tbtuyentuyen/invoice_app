@@ -8,7 +8,7 @@ from tools.process_helper import stop_broker
 from tools.utils import expand_env_vars_in_path
 from common.constants import MessageBoxType
 from common.custom_widget import MessageBoxWidget
-
+from layout.shop_config.shop_config import ShopConfigDialog
 
 class Events():   # pylint:disable=R0903
     """ Events class to handle application events such as closing the app """
@@ -40,3 +40,8 @@ class Events():   # pylint:disable=R0903
         if folder_path:
             self.context.config.export_folder = folder_path
             self.context.save_config()
+
+    def on_shop_config_clicked(self):
+        """ Event clicked on shop config """
+        dialog = ShopConfigDialog(self.parent_view)
+        dialog.exec_()
